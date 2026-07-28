@@ -1,0 +1,12 @@
+<resources>
+    <style name="Theme.GetGoShipper" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">#00C851</item>
+        <item name="colorPrimaryVariant">#00A341</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+    </style>
+
+    <style name="Theme.GetGoShipper.NoActionBar">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+</resources>

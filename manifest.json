@@ -1,0 +1,24 @@
+{
+  "name": "GetGo Shipper",
+  "short_name": "GetGo Shipper",
+  "description": "Logistics & Freight Marketplace",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#00C851",
+  "theme_color": "#00C851",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "assets/logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "assets/logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Sign Up – GetGo Shipper</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body>
+<div class="app-container">
+  <div class="auth-page">
+    <div class="auth-hero" style="min-height:180px;">
+      <a href="login.html" class="header-back" style="position:absolute;top:20px;left:16px;color:white;opacity:0.9;">←</a>
+      <div class="auth-hero-tagline">Join GetGo</div>
+      <h1 class="auth-hero-title">Create <span>Account</span></h1>
+      <svg class="auth-hero-wave" viewBox="0 0 430 40" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 40 Q107 0 215 20 Q323 40 430 0 L430 40 Z" fill="var(--color-bg)" />
+      </svg>
+    </div>
+
+    <div class="auth-body animate-fade-in-up">
+      <!-- Step indicators -->
+      <div class="signup-steps" id="signupSteps">
+        <div class="signup-step-dot active" id="step1dot"></div>
+        <div class="signup-step-dot" id="step2dot"></div>
+        <div class="signup-step-dot" id="step3dot"></div>
+      </div>
+
+      <!-- Step 1: Personal Info -->
+      <div id="step1" class="step-panel">
+        <h2 class="auth-title">Personal Info</h2>
+        <p class="auth-subtitle">Let's get to know you</p>
+        <div class="auth-form">
+          <div class="form-group">
+            <label class="form-label">Full Name <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon-left">👤</span>
+              <input type="text" id="fullName" class="form-input has-icon-left" placeholder="Arjun Sharma" autocomplete="name" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email Address <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon-left">📧</span>
+              <input type="email" id="regEmail" class="form-input has-icon-left" placeholder="arjun@example.com" autocomplete="email" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Mobile Number <span class="required">*</span></label>
+            <div class="phone-input-wrapper">
+              <div class="phone-country-code">🇮🇳 +91</div>
+              <input type="tel" id="regPhone" class="form-input" placeholder="98765 43210" maxlength="10" style="flex:1;" />
+            </div>
+          </div>
+          <button type="button" class="btn btn-primary btn-full btn-xl" onclick="goStep(2)">Continue →</button>
+        </div>
+      </div>
+
+      <!-- Step 2: Password -->
+      <div id="step2" class="step-panel hidden">
+        <h2 class="auth-title">Set Password</h2>
+        <p class="auth-subtitle">Create a strong password</p>
+        <div class="auth-form">
+          <div class="form-group">
+            <label class="form-label">Password <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon-left">🔒</span>
+              <input type="password" id="regPwd" class="form-input has-icon-left has-icon-right" placeholder="Min. 8 characters" oninput="checkStrength(this.value)" />
+              <span class="input-icon-right" onclick="togglePwd('regPwd',this)">👁️</span>
+            </div>
+            <div class="password-strength">
+              <div class="strength-bar">
+                <div class="strength-segment" id="s1"></div>
+                <div class="strength-segment" id="s2"></div>
+                <div class="strength-segment" id="s3"></div>
+                <div class="strength-segment" id="s4"></div>
+              </div>
+              <span class="strength-label" id="strengthLabel">Enter a password</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Confirm Password <span class="required">*</span></label>
+            <div class="input-wrapper">
+              <span class="input-icon-left">🔒</span>
+              <input type="password" id="regPwdConfirm" class="form-input has-icon-left has-icon-right" placeholder="Re-enter password" />
+              <span class="input-icon-right" onclick="togglePwd('regPwdConfirm',this)">👁️</span>
+            </div>
+          </div>
+          <div class="terms-check">
+            <input type="checkbox" id="agreeTerms" />
+            <label for="agreeTerms">I agree to the <a href="help-support.html">Terms & Conditions</a> and <a href="help-support.html">Privacy Policy</a></label>
+          </div>
+          <div class="flex gap-sm">
+            <button type="button" class="btn btn-secondary btn-lg" style="flex:1;" onclick="goStep(1)">← Back</button>
+            <button type="button" class="btn btn-primary btn-lg" style="flex:2;" onclick="goStep(3)">Continue →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: OTP (inline) -->
+      <div id="step3" class="step-panel hidden">
+        <h2 class="auth-title">Verify Mobile</h2>
+        <p class="auth-subtitle">Enter the 6-digit OTP sent to <strong id="regPhoneDisplay"></strong></p>
+        <div class="auth-form">
+          <div class="otp-inputs" id="signupOtpInputs">
+            <input class="otp-box" maxlength="1" type="tel" />
+            <input class="otp-box" maxlength="1" type="tel" />
+            <input class="otp-box" maxlength="1" type="tel" />
+            <input class="otp-box" maxlength="1" type="tel" />
+            <input class="otp-box" maxlength="1" type="tel" />
+            <input class="otp-box" maxlength="1" type="tel" />
+          </div>
+          <div class="otp-timer">Resend OTP in <span class="countdown" id="signupTimer">30</span>s</div>
+          <div class="otp-resend" id="signupResend" onclick="resendOTP()">Resend OTP</div>
+          <button type="button" class="btn btn-primary btn-full btn-xl" onclick="completeSignup()" id="completeBtn">
+            Create Account 🎉
+          </button>
+          <div class="otp-timer" style="margin-top:4px;">Demo OTP: <strong style="color:var(--color-primary);">123456</strong></div>
+        </div>
+      </div>
+
+      <div class="auth-footer">
+        Already have an account? <a href="login.html">Sign In</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/mock-data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  App.applyDarkMode();
+  let currentStep = 1;
+
+  function goStep(n) {
+    if (n === 2) {
+      const name = document.getElementById('fullName').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const phone = document.getElementById('regPhone').value.trim();
+      if (!name || !email || phone.length < 10) { App.showToast('Please fill all fields correctly', 'error'); return; }
+    }
+    if (n === 3) {
+      const pwd = document.getElementById('regPwd').value;
+      const confirm = document.getElementById('regPwdConfirm').value;
+      if (pwd.length < 8) { App.showToast('Password must be at least 8 characters', 'error'); return; }
+      if (pwd !== confirm) { App.showToast('Passwords do not match', 'error'); return; }
+      if (!document.getElementById('agreeTerms').checked) { App.showToast('Please accept terms & conditions', 'error'); return; }
+      const phone = document.getElementById('regPhone').value;
+      document.getElementById('regPhoneDisplay').textContent = '+91 ' + phone;
+      startOTPTimer();
+    }
+    document.getElementById(`step${currentStep}`).classList.add('hidden');
+    currentStep = n;
+    document.getElementById(`step${n}`).classList.remove('hidden');
+    // Update dots
+    for (let i = 1; i <= 3; i++) {
+      const dot = document.getElementById(`step${i}dot`);
+      dot.classList.remove('active', 'done');
+      if (i < n) dot.classList.add('done');
+      if (i === n) dot.classList.add('active');
+    }
+    // Focus first OTP
+    if (n === 3) { setTimeout(() => document.querySelector('#signupOtpInputs .otp-box').focus(), 100); }
+  }
+
+  function togglePwd(id, btn) {
+    const el = document.getElementById(id);
+    el.type = el.type === 'password' ? 'text' : 'password';
+    btn.textContent = el.type === 'password' ? '👁️' : '🙈';
+  }
+
+  function checkStrength(val) {
+    const segs = [document.getElementById('s1'), document.getElementById('s2'), document.getElementById('s3'), document.getElementById('s4')];
+    const label = document.getElementById('strengthLabel');
+    segs.forEach(s => { s.className = 'strength-segment'; });
+    if (!val) { label.textContent = 'Enter a password'; return; }
+    let score = 0;
+    if (val.length >= 8) score++;
+    if (/[A-Z]/.test(val)) score++;
+    if (/[0-9]/.test(val)) score++;
+    if (/[^A-Za-z0-9]/.test(val)) score++;
+    const cls = score <= 1 ? 'weak' : score <= 2 ? 'medium' : 'strong';
+    const labels = { weak: 'Weak', medium: 'Medium', strong: 'Strong' };
+    for (let i = 0; i < score; i++) { segs[i].classList.add('active', cls); }
+    label.textContent = labels[cls] + ' password';
+  }
+
+  // OTP auto-advance
+  document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('.otp-box').forEach((box, i, all) => {
+      box.addEventListener('input', () => {
+        if (box.value && i < all.length - 1) all[i + 1].focus();
+      });
+      box.addEventListener('keydown', e => {
+        if (e.key === 'Backspace' && !box.value && i > 0) all[i - 1].focus();
+      });
+    });
+  });
+
+  let timerInterval;
+  function startOTPTimer() {
+    let secs = 30;
+    clearInterval(timerInterval);
+    document.getElementById('signupTimer').textContent = secs;
+    document.querySelector('.otp-timer').style.display = 'block';
+    document.getElementById('signupResend').style.display = 'none';
+    timerInterval = setInterval(() => {
+      secs--;
+      document.getElementById('signupTimer').textContent = secs;
+      if (secs <= 0) {
+        clearInterval(timerInterval);
+        document.querySelector('.otp-timer').style.display = 'none';
+        document.getElementById('signupResend').style.display = 'block';
+      }
+    }, 1000);
+  }
+
+  function resendOTP() {
+    App.showToast('OTP resent successfully!', 'success');
+    startOTPTimer();
+  }
+
+  function completeSignup() {
+    const otp = Array.from(document.querySelectorAll('#signupOtpInputs .otp-box')).map(b => b.value).join('');
+    if (otp.length < 6) { App.showToast('Enter the 6-digit OTP', 'error'); return; }
+    if (otp !== '123456') { App.showToast('Invalid OTP. Try 123456', 'error'); return; }
+    App.login({ ...MOCK.user, name: document.getElementById('fullName').value, email: document.getElementById('regEmail').value });
+    App.showToast('Account created! Welcome to GetGo 🎉', 'success');
+    setTimeout(() => window.location.href = 'home.html', 1000);
+  }
+</script>
+</body>
+</html>

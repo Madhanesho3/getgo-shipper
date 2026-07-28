@@ -1,0 +1,301 @@
+/* =====================================================
+   TRACKING.CSS – Live Tracking Screen
+   ===================================================== */
+
+/* ── Tracking Layout ───────────────────────────────── */
+.tracking-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  max-width: var(--max-width);
+  margin: 0 auto;
+  position: relative;
+}
+
+/* ── Map Area ──────────────────────────────────────── */
+.tracking-map {
+  height: 55vh;
+  min-height: 300px;
+  background: linear-gradient(160deg, #C8E6C9 0%, #A5D6A7 40%, #81C784 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+.tracking-map-overlay {
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60'%3E%3Cpath d='M0 0h60v60H0z' fill='none' stroke='%2300000008' stroke-width='1'/%3E%3C/svg%3E");
+}
+
+.map-roads {
+  position: absolute;
+  inset: 0;
+  opacity: 0.4;
+}
+
+/* Simulated roads */
+.map-road {
+  position: absolute;
+  background: rgba(255,255,255,0.6);
+}
+.map-road-h { height: 4px; width: 100%; }
+.map-road-v { width: 4px; height: 100%; }
+.map-road-1 { top: 30%; left: 0; right: 0; }
+.map-road-2 { top: 60%; left: 0; right: 0; }
+.map-road-3 { left: 25%; top: 0; bottom: 0; }
+.map-road-4 { left: 65%; top: 0; bottom: 0; }
+
+/* Driver Marker */
+.driver-marker {
+  position: absolute;
+  animation: driverMove 8s ease-in-out infinite alternate;
+}
+
+@keyframes driverMove {
+  from { top: 30%; left: 20%; }
+  to   { top: 45%; left: 50%; }
+}
+
+.driver-marker-icon {
+  width: 52px; height: 52px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  box-shadow: var(--shadow-lg);
+  border: 3px solid var(--color-primary);
+  position: relative;
+}
+
+.driver-marker-pulse {
+  position: absolute;
+  inset: -8px;
+  border: 2px solid rgba(0,200,81,0.4);
+  border-radius: 50%;
+  animation: driverPulse 2s ease infinite;
+}
+
+@keyframes driverPulse {
+  0%   { transform: scale(1); opacity: 1; }
+  100% { transform: scale(1.5); opacity: 0; }
+}
+
+/* Destination Marker */
+.dest-marker {
+  position: absolute;
+  bottom: 20%; right: 25%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.dest-marker-pin {
+  width: 36px; height: 36px;
+  background: var(--color-error);
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+}
+
+.dest-marker-pin::after {
+  content: '';
+  width: 14px; height: 14px;
+  background: white;
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+/* Route Line */
+.route-line {
+  position: absolute;
+  top: 30%;
+  left: 20%;
+  width: 50%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-primary), var(--color-error));
+  border-radius: var(--radius-full);
+  opacity: 0.7;
+  transform: rotate(10deg);
+}
+
+/* Map Controls */
+.map-controls {
+  position: absolute;
+  right: var(--space-lg);
+  bottom: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+}
+
+.map-control-btn {
+  width: 40px; height: 40px;
+  background: white;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  border: none;
+  transition: all var(--transition-base);
+}
+.map-control-btn:hover { background: var(--color-primary-light); }
+
+/* Back button on map */
+.map-back-btn {
+  position: absolute;
+  top: var(--space-lg);
+  left: var(--space-lg);
+  width: 40px; height: 40px;
+  background: white;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  color: var(--color-text-primary);
+  border: none;
+  cursor: pointer;
+}
+
+/* Status badge on map */
+.map-status-badge {
+  position: absolute;
+  top: var(--space-lg);
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  border-radius: var(--radius-full);
+  padding: var(--space-sm) var(--space-lg);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-text-primary);
+  box-shadow: var(--shadow-md);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+}
+
+.map-status-badge .status-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  animation: blink 1s ease infinite;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ── Info Panel ────────────────────────────────────── */
+.tracking-panel {
+  background: var(--color-surface);
+  border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
+  margin-top: -24px;
+  padding: var(--space-2xl) var(--space-lg);
+  flex: 1;
+  overflow-y: auto;
+  position: relative;
+  z-index: 2;
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.1);
+}
+
+/* ── Driver Info ───────────────────────────────────── */
+.driver-info-row {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+}
+
+.driver-name { font-size: var(--font-size-lg); font-weight: 700; color: var(--color-text-primary); }
+.driver-vehicle { font-size: var(--font-size-sm); color: var(--color-text-secondary); }
+
+.driver-actions {
+  display: flex;
+  gap: var(--space-sm);
+  margin-left: auto;
+}
+
+.driver-action-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all var(--transition-base);
+}
+.driver-action-btn:hover { border-color: var(--color-primary); background: var(--color-primary-light); }
+.driver-action-btn.call { border-color: var(--color-success); color: var(--color-success); }
+.driver-action-btn.msg  { border-color: var(--color-info); color: var(--color-info); }
+
+/* ── ETA Bar ───────────────────────────────────────── */
+.eta-bar {
+  background: var(--color-primary-light);
+  border-radius: var(--radius-xl);
+  padding: var(--space-md) var(--space-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-xl);
+}
+
+.eta-value { font-size: var(--font-size-2xl); font-weight: 900; color: var(--color-primary); }
+.eta-label { font-size: var(--font-size-xs); color: var(--color-primary-darker); font-weight: 500; }
+.eta-distance { font-size: var(--font-size-sm); font-weight: 700; color: var(--color-primary-dark); }
+
+/* ── OTP Box (delivery verification) ──────────────── */
+.delivery-otp-card {
+  background: linear-gradient(135deg, #1A1A2E, #2D3142);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  margin-bottom: var(--space-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.delivery-otp-label { font-size: var(--font-size-sm); color: rgba(255,255,255,0.7); font-weight: 500; }
+.delivery-otp-value { font-size: var(--font-size-3xl); font-weight: 900; color: white; letter-spacing: 6px; }
+
+/* ── Safety Buttons ────────────────────────────────── */
+.safety-btns {
+  display: flex;
+  gap: var(--space-sm);
+  margin-top: var(--space-xl);
+}
+
+.safety-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-xs);
+  padding: var(--space-md);
+  border-radius: var(--radius-xl);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1.5px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+  transition: all var(--transition-base);
+}
+.safety-btn.sos { border-color: var(--color-error); color: var(--color-error); background: var(--color-error-bg); }
+.safety-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+.safety-btn.sos:hover { background: var(--color-error); color: white; }

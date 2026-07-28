@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Wallet – GetGo Shipper</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/profile.css" />
+</head>
+<body>
+<div class="app-container">
+<div class="page page-with-nav">
+
+  <div class="page-header">
+    <div style="width:40px;"></div>
+    <div class="header-title">Wallet & Payments</div>
+    <div style="width:40px;"></div>
+  </div>
+
+  <div class="page-content">
+    <div style="padding:var(--space-xl) var(--space-lg);">
+
+      <!-- Balance Card -->
+      <div class="wallet-balance-card" data-animate>
+        <div class="wallet-balance-label">💰 GetGo Wallet Balance</div>
+        <div class="wallet-balance-amount" id="walletBalance">₹2,450</div>
+        <div class="wallet-balance-sub">Available for instant payments</div>
+        <div class="wallet-actions">
+          <button class="wallet-action" onclick="showAddMoney()">➕ Add Money</button>
+          <button class="wallet-action" onclick="App.showToast('Withdraw coming soon!','info')">🏦 Withdraw</button>
+          <button class="wallet-action" onclick="App.showToast('Statement downloading...','success')">📄 Statement</button>
+        </div>
+      </div>
+
+      <!-- Quick Add -->
+      <div style="margin-bottom:var(--space-xl);">
+        <div class="section-title" style="margin-bottom:var(--space-md);">Quick Add</div>
+        <div style="display:flex;gap:var(--space-sm);">
+          <button class="btn btn-secondary btn-md" onclick="quickAdd(100)">+ ₹100</button>
+          <button class="btn btn-secondary btn-md" onclick="quickAdd(250)">+ ₹250</button>
+          <button class="btn btn-secondary btn-md" onclick="quickAdd(500)">+ ₹500</button>
+          <button class="btn btn-secondary btn-md" onclick="quickAdd(1000)">+ ₹1,000</button>
+        </div>
+      </div>
+
+      <!-- Linked Payment Methods -->
+      <div style="margin-bottom:var(--space-xl);">
+        <div class="section-header">
+          <div class="section-title">Payment Methods</div>
+          <button onclick="App.showToast('Add payment method coming soon!','info')" style="font-size:var(--font-size-sm);font-weight:700;color:var(--color-primary);background:none;border:none;cursor:pointer;">+ Add</button>
+        </div>
+        <div class="flex-col gap-sm">
+          <div class="payment-method">
+            <div class="payment-method-icon">📲</div>
+            <div class="payment-method-info">
+              <div class="payment-method-name">Google Pay</div>
+              <div class="payment-method-desc">arjun@okaxis • UPI</div>
+            </div>
+            <span class="badge badge-success">Default</span>
+          </div>
+          <div class="payment-method">
+            <div class="payment-method-icon">💳</div>
+            <div class="payment-method-info">
+              <div class="payment-method-name">HDFC Debit Card</div>
+              <div class="payment-method-desc">•••• •••• •••• 4521</div>
+            </div>
+            <button onclick="App.showToast('Card removed','info')" style="background:none;border:none;cursor:pointer;color:var(--color-error);font-size:18px;">✕</button>
+          </div>
+          <div class="payment-method">
+            <div class="payment-method-icon">🏦</div>
+            <div class="payment-method-info">
+              <div class="payment-method-name">Net Banking</div>
+              <div class="payment-method-desc">SBI – Savings Account</div>
+            </div>
+            <button onclick="App.showToast('Bank removed','info')" style="background:none;border:none;cursor:pointer;color:var(--color-error);font-size:18px;">✕</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Promo Codes -->
+      <div style="margin-bottom:var(--space-xl);">
+        <div class="section-title" style="margin-bottom:var(--space-md);">Active Promo Codes</div>
+        <div class="flex-col gap-sm">
+          <div style="background:var(--color-primary-light);border:1.5px dashed var(--color-primary);border-radius:var(--radius-xl);padding:var(--space-lg);display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:var(--font-size-base);font-weight:800;color:var(--color-primary);letter-spacing:1px;">GETGO10</div>
+              <div style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">10% off • Min. order ₹100</div>
+            </div>
+            <button onclick="copyCode('GETGO10')" class="btn btn-outline btn-sm">Copy</button>
+          </div>
+          <div style="background:var(--color-warning-bg);border:1.5px dashed var(--color-warning);border-radius:var(--radius-xl);padding:var(--space-lg);display:flex;align-items:center;justify-content:space-between;">
+            <div>
+              <div style="font-size:var(--font-size-base);font-weight:800;color:#D97706;letter-spacing:1px;">WEEKEND20</div>
+              <div style="font-size:var(--font-size-sm);color:var(--color-text-secondary);">20% off load • Sat–Sun only</div>
+            </div>
+            <button onclick="copyCode('WEEKEND20')" class="btn btn-sm" style="border:1.5px solid var(--color-warning);color:#D97706;background:transparent;">Copy</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Transaction History -->
+      <div>
+        <div class="section-header">
+          <div class="section-title">Transaction History</div>
+          <button onclick="App.showToast('Full history coming soon!','info')" style="font-size:var(--font-size-sm);font-weight:600;color:var(--color-primary);background:none;border:none;cursor:pointer;">View All</button>
+        </div>
+        <div class="card" style="padding:var(--space-md) var(--space-lg);">
+          <div id="txList"></div>
+        </div>
+      </div>
+
+      <div style="height:var(--space-3xl);"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="nav-item" id="nav-home">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </a>
+    <a href="my-bookings.html" class="nav-item" id="nav-bookings">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="nav-label">Bookings</span>
+    </a>
+    <a href="notifications.html" class="nav-item" id="nav-notifs" style="position:relative;">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="nav-label">Alerts</span>
+    </a>
+    <a href="wallet.html" class="nav-item" id="nav-wallet">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      <span class="nav-label">Wallet</span>
+    </a>
+    <a href="profile.html" class="nav-item" id="nav-profile">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </a>
+  </nav>
+</div>
+</div>
+
+<!-- Add Money Sheet -->
+<div class="overlay" id="addMoneyOverlay" onclick="closeAddMoney()"></div>
+<div class="bottom-sheet" id="addMoneySheet">
+  <div class="bottom-sheet-handle"></div>
+  <div style="padding:var(--space-lg) var(--space-xl) var(--space-3xl);">
+    <h3 style="margin-bottom:var(--space-sm);">Add Money to Wallet</h3>
+    <p class="text-secondary" style="margin-bottom:var(--space-xl);">Choose amount and payment method</p>
+    <div class="form-group" style="margin-bottom:var(--space-lg);">
+      <label class="form-label">Amount (₹)</label>
+      <div class="input-wrapper">
+        <span class="input-icon-left" style="font-size:var(--font-size-lg);font-weight:700;">₹</span>
+        <input type="number" class="form-input has-icon-left" id="addMoneyAmt" placeholder="Enter amount" min="1" max="10000" />
+      </div>
+    </div>
+    <div class="flex gap-sm" style="margin-bottom:var(--space-xl);">
+      <button class="chip" onclick="setAmt(100)">₹100</button>
+      <button class="chip" onclick="setAmt(250)">₹250</button>
+      <button class="chip" onclick="setAmt(500)">₹500</button>
+      <button class="chip" onclick="setAmt(1000)">₹1000</button>
+    </div>
+    <div class="form-group" style="margin-bottom:var(--space-xl);">
+      <label class="form-label">Pay via</label>
+      <select class="form-select">
+        <option>Google Pay (arjun@okaxis)</option>
+        <option>HDFC Debit Card •••• 4521</option>
+        <option>SBI Net Banking</option>
+        <option>Credit Card</option>
+      </select>
+    </div>
+    <button class="btn btn-primary btn-full btn-xl" onclick="processAddMoney()">Add Money →</button>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/mock-data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  App.applyDarkMode();
+  App.requireAuth();
+
+  let balance = 2450;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('nav-wallet').classList.add('active');
+    const session = App.getSession();
+    if (session) balance = session.walletBalance || 2450;
+    document.getElementById('walletBalance').textContent = App.formatCurrency(balance);
+    renderTransactions();
+  });
+
+  function renderTransactions() {
+    const list = document.getElementById('txList');
+    MOCK.transactions.forEach(tx => {
+      const el = document.createElement('div');
+      el.className = 'transaction-item';
+      el.innerHTML = `
+        <div class="transaction-icon ${tx.type}">
+          ${tx.type === 'credit' ? '⬆️' : '⬇️'}
+        </div>
+        <div class="transaction-info">
+          <div class="transaction-desc">${tx.desc}</div>
+          <div class="transaction-date">${tx.date} · ${tx.mode}</div>
+        </div>
+        <div class="transaction-amount ${tx.type}">
+          ${tx.type === 'credit' ? '+' : '-'}${App.formatCurrency(tx.amount)}
+        </div>
+      `;
+      list.appendChild(el);
+    });
+  }
+
+  function showAddMoney() {
+    document.getElementById('addMoneyOverlay').classList.add('show');
+    document.getElementById('addMoneySheet').classList.add('show');
+  }
+
+  function closeAddMoney() {
+    document.getElementById('addMoneyOverlay').classList.remove('show');
+    document.getElementById('addMoneySheet').classList.remove('show');
+  }
+
+  function setAmt(n) {
+    document.getElementById('addMoneyAmt').value = n;
+  }
+
+  function quickAdd(n) {
+    document.getElementById('addMoneyAmt').value = n;
+    showAddMoney();
+  }
+
+  function processAddMoney() {
+    const amt = parseInt(document.getElementById('addMoneyAmt').value);
+    if (!amt || amt < 1) { App.showToast('Enter a valid amount', 'error'); return; }
+    balance += amt;
+    document.getElementById('walletBalance').textContent = App.formatCurrency(balance);
+    closeAddMoney();
+    App.showToast(`₹${amt} added to wallet successfully! 🎉`, 'success');
+  }
+
+  function copyCode(code) {
+    navigator.clipboard.writeText(code).then(() => App.showToast(`Code "${code}" copied!`, 'success'));
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="description" content="Login to GetGo Shipper – Book deliveries instantly across India." />
+  <title>Login – GetGo Shipper</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/auth.css" />
+</head>
+<body>
+<div class="app-container">
+  <div class="auth-page">
+
+    <!-- Hero -->
+    <div class="auth-hero">
+      <div class="auth-hero-tagline">Welcome Back</div>
+      <h1 class="auth-hero-title">Login to <span>GetGo</span></h1>
+      <p class="auth-hero-subtitle">Fast. Reliable. Right at your doorstep.</p>
+      <svg class="auth-hero-wave" viewBox="0 0 430 40" xmlns="http://www.w3.org/2000/svg">
+        <path d="M0 40 Q107 0 215 20 Q323 40 430 0 L430 40 Z" fill="var(--color-bg)" />
+      </svg>
+    </div>
+
+    <!-- Body -->
+    <div class="auth-body animate-fade-in-up">
+      <h2 class="auth-title">Sign In</h2>
+      <p class="auth-subtitle">Enter your credentials to continue</p>
+
+      <!-- Login Type -->
+      <div class="input-type-tabs" id="loginTypeTabs">
+        <div class="input-type-tab active" data-type="email" onclick="switchLoginType('email')">Email</div>
+        <div class="input-type-tab" data-type="phone" onclick="switchLoginType('phone')">Mobile</div>
+      </div>
+
+      <form class="auth-form" id="loginForm" onsubmit="handleLogin(event)">
+
+        <!-- Email Field -->
+        <div class="form-group" id="emailField">
+          <label class="form-label">Email Address <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <span class="input-icon-left">📧</span>
+            <input type="email" id="emailInput" class="form-input has-icon-left" placeholder="arjun@example.com" autocomplete="email" />
+          </div>
+          <span class="form-error hidden" id="emailError"></span>
+        </div>
+
+        <!-- Phone Field -->
+        <div class="form-group hidden" id="phoneField">
+          <label class="form-label">Mobile Number <span class="required">*</span></label>
+          <div class="phone-input-wrapper">
+            <div class="phone-country-code">🇮🇳 +91</div>
+            <input type="tel" id="phoneInput" class="form-input" placeholder="98765 43210" maxlength="10" autocomplete="tel" style="flex:1;" />
+          </div>
+          <span class="form-error hidden" id="phoneError"></span>
+        </div>
+
+        <!-- Password -->
+        <div class="form-group">
+          <div class="flex-between">
+            <label class="form-label">Password <span class="required">*</span></label>
+            <a href="forgot-password.html" class="text-sm font-semibold text-primary">Forgot?</a>
+          </div>
+          <div class="input-wrapper">
+            <span class="input-icon-left">🔒</span>
+            <input type="password" id="passwordInput" class="form-input has-icon-left has-icon-right" placeholder="Enter your password" autocomplete="current-password" />
+            <span class="input-icon-right" onclick="togglePassword('passwordInput', this)">👁️</span>
+          </div>
+          <span class="form-error hidden" id="passwordError"></span>
+        </div>
+
+        <!-- Remember Me -->
+        <div class="flex-start gap-md" style="margin-top:-4px;">
+          <input type="checkbox" id="rememberMe" style="accent-color:var(--color-primary); width:18px; height:18px;" />
+          <label for="rememberMe" class="text-sm" style="cursor:pointer; color:var(--color-text-secondary);">Remember me</label>
+        </div>
+
+        <!-- Login Button -->
+        <button type="submit" class="btn btn-primary btn-full btn-xl" id="loginBtn">
+          <span id="loginBtnText">Sign In</span>
+          <span class="spinner spinner-sm hidden" id="loginSpinner"></span>
+        </button>
+
+        <!-- Demo Login -->
+        <button type="button" class="btn btn-secondary btn-full btn-lg" onclick="demoLogin()">
+          🎯 Try Demo Account
+        </button>
+      </form>
+
+      <div class="divider-text"><span>or continue with</span></div>
+
+      <div class="flex-col gap-sm">
+        <button class="social-login-btn" onclick="App.showToast('Google login coming soon!', 'info')">
+          <span class="social-icon">🌐</span> Continue with Google
+        </button>
+      </div>
+
+      <div class="auth-footer">
+        New to GetGo? <a href="signup.html">Create Account</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/mock-data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  App.applyDarkMode();
+  // App.requireGuest(); // Uncomment to redirect if already logged in
+
+  let loginType = 'email';
+
+  function switchLoginType(type) {
+    loginType = type;
+    document.querySelectorAll('.input-type-tab').forEach(t => t.classList.remove('active'));
+    document.querySelector(`[data-type="${type}"]`).classList.add('active');
+    document.getElementById('emailField').classList.toggle('hidden', type !== 'email');
+    document.getElementById('phoneField').classList.toggle('hidden', type !== 'phone');
+  }
+
+  function togglePassword(inputId, btn) {
+    const input = document.getElementById(inputId);
+    if (input.type === 'password') { input.type = 'text'; btn.textContent = '🙈'; }
+    else { input.type = 'password'; btn.textContent = '👁️'; }
+  }
+
+  function handleLogin(e) {
+    e.preventDefault();
+    let valid = true;
+
+    const pwd = document.getElementById('passwordInput').value;
+    if (!pwd || pwd.length < 6) {
+      document.getElementById('passwordError').textContent = 'Password must be at least 6 characters';
+      document.getElementById('passwordError').classList.remove('hidden');
+      document.getElementById('passwordInput').classList.add('error');
+      valid = false;
+    } else {
+      document.getElementById('passwordError').classList.add('hidden');
+      document.getElementById('passwordInput').classList.remove('error');
+    }
+
+    if (loginType === 'email') {
+      const email = document.getElementById('emailInput').value;
+      if (!email || !email.includes('@')) {
+        document.getElementById('emailError').textContent = 'Enter a valid email address';
+        document.getElementById('emailError').classList.remove('hidden');
+        document.getElementById('emailInput').classList.add('error');
+        valid = false;
+      } else {
+        document.getElementById('emailError').classList.add('hidden');
+        document.getElementById('emailInput').classList.remove('error');
+      }
+    } else {
+      const phone = document.getElementById('phoneInput').value;
+      if (!phone || phone.length < 10) {
+        document.getElementById('phoneError').textContent = 'Enter a valid 10-digit mobile number';
+        document.getElementById('phoneError').classList.remove('hidden');
+        document.getElementById('phoneInput').classList.add('error');
+        valid = false;
+      } else {
+        document.getElementById('phoneError').classList.add('hidden');
+        document.getElementById('phoneInput').classList.remove('error');
+      }
+    }
+
+    if (!valid) return;
+
+    // Simulate login
+    const btn = document.getElementById('loginBtn');
+    const txt = document.getElementById('loginBtnText');
+    const sp  = document.getElementById('loginSpinner');
+    btn.classList.add('loading');
+    txt.textContent = 'Signing in...';
+    sp.classList.remove('hidden');
+
+    setTimeout(() => {
+      App.login(MOCK.user);
+      App.showToast('Login successful! Welcome back 🎉', 'success');
+      setTimeout(() => window.location.href = 'home.html', 800);
+    }, 1500);
+  }
+
+  function demoLogin() {
+    document.getElementById('emailInput').value = 'arjun.sharma@gmail.com';
+    document.getElementById('passwordInput').value = 'demo1234';
+    handleLogin(new Event('submit'));
+  }
+</script>
+</body>
+</html>

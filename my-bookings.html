@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>My Bookings – GetGo Shipper</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/profile.css" />
+</head>
+<body>
+<div class="app-container">
+<div class="page page-with-nav">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div style="width:40px;"></div>
+    <div class="header-title">My Bookings</div>
+    <div style="width:40px;"></div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- Tabs -->
+    <div style="padding:var(--space-lg) var(--space-lg) 0;">
+      <div class="tabs">
+        <div class="tab-item active" id="tab-active" onclick="switchTab('active',this)">Active</div>
+        <div class="tab-item" id="tab-completed" onclick="switchTab('completed',this)">Completed</div>
+        <div class="tab-item" id="tab-cancelled" onclick="switchTab('cancelled',this)">Cancelled</div>
+      </div>
+    </div>
+
+    <!-- Booking Lists -->
+    <div style="padding:0 var(--space-lg) var(--space-lg);">
+
+      <!-- Active -->
+      <div id="list-active"></div>
+
+      <!-- Completed -->
+      <div id="list-completed" class="hidden"></div>
+
+      <!-- Cancelled -->
+      <div id="list-cancelled" class="hidden"></div>
+
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="nav-item" id="nav-home">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </a>
+    <a href="my-bookings.html" class="nav-item" id="nav-bookings">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="nav-label">Bookings</span>
+    </a>
+    <a href="notifications.html" class="nav-item" id="nav-notifs" style="position:relative;">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="nav-label">Alerts</span>
+    </a>
+    <a href="wallet.html" class="nav-item" id="nav-wallet">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      <span class="nav-label">Wallet</span>
+    </a>
+    <a href="profile.html" class="nav-item" id="nav-profile">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </a>
+  </nav>
+</div>
+</div>
+
+<!-- Booking Detail Sheet -->
+<div class="overlay" id="detailOverlay" onclick="closeDetail()"></div>
+<div class="bottom-sheet" id="detailSheet">
+  <div class="bottom-sheet-handle"></div>
+  <div style="padding:var(--space-md) var(--space-lg) var(--space-3xl);" id="detailContent"></div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/mock-data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  App.applyDarkMode();
+  App.requireAuth();
+
+  const typeIcons = { Parcel: '📦', Load: '🚛', Freight: '🏭' };
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('nav-bookings').classList.add('active');
+    renderAll();
+  });
+
+  function renderAll() {
+    const active    = MOCK.bookings.filter(b => !['Completed','Cancelled'].includes(b.status));
+    const completed = MOCK.bookings.filter(b => b.status === 'Completed');
+    const cancelled = MOCK.bookings.filter(b => b.status === 'Cancelled');
+
+    renderList('list-active', active, 'No active bookings');
+    renderList('list-completed', completed, 'No completed bookings yet');
+    renderList('list-cancelled', cancelled, 'No cancelled bookings');
+  }
+
+  function renderList(containerId, bookings, emptyMsg) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    if (!bookings.length) {
+      container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">📭</div><div class="empty-state-title">${emptyMsg}</div></div>`;
+      return;
+    }
+    bookings.forEach(b => {
+      const statusColor = App.getStatusColor(b.status);
+      const card = document.createElement('div');
+      card.className = 'booking-card';
+      card.onclick = () => showDetail(b);
+      card.innerHTML = `
+        <div class="booking-card-header">
+          <div style="display:flex;align-items:center;gap:var(--space-sm);">
+            <span style="font-size:20px;">${typeIcons[b.type] || '📦'}</span>
+            <span style="font-size:var(--font-size-base);font-weight:700;">${b.type} · ${b.vehicle}</span>
+          </div>
+          <span class="badge badge-${statusColor}">${b.status}</span>
+        </div>
+        <div class="booking-card-route">
+          <div class="booking-route-dots">
+            <div class="booking-route-dot-green"></div>
+            <div class="booking-route-vline"></div>
+            <div class="booking-route-dot-red"></div>
+          </div>
+          <div class="booking-route-text">
+            <div class="booking-route-from">${b.pickup}</div>
+            <div class="booking-route-to">${b.drop}</div>
+          </div>
+        </div>
+        <div class="booking-card-footer">
+          <div>
+            <div class="booking-card-id">${b.id}</div>
+            <div class="booking-card-date">${b.date} · ${b.time}</div>
+          </div>
+          <div class="booking-card-fare">${b.fare > 0 ? App.formatCurrency(b.fare) : '–'}</div>
+        </div>
+        ${b.status === 'In Transit' ? `<div style="margin-top:var(--space-md);"><a href="live-tracking.html" class="btn btn-primary btn-sm btn-full">🗺️ Track Live</a></div>` : ''}
+        ${b.status === 'Completed' ? `<div style="margin-top:var(--space-md);display:flex;gap:var(--space-sm);"><button class="btn btn-outline btn-sm" style="flex:1;" onclick="event.stopPropagation();App.showToast('Invoice downloaded!','success')">📄 Invoice</button><button class="btn btn-secondary btn-sm" style="flex:1;" onclick="event.stopPropagation();rebook('${b.id}')">🔄 Rebook</button></div>` : ''}
+      `;
+      container.appendChild(card);
+    });
+  }
+
+  function switchTab(tab, el) {
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    ['active','completed','cancelled'].forEach(t => {
+      document.getElementById('list-' + t).classList.toggle('hidden', t !== tab);
+    });
+  }
+
+  function showDetail(b) {
+    const content = document.getElementById('detailContent');
+    content.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-xl);">
+        <h3>${b.type} Delivery</h3>
+        <span class="badge badge-${App.getStatusColor(b.status)}">${b.status}</span>
+      </div>
+      <div class="fare-row"><span class="fare-label">Booking ID</span><span class="fare-value">${b.id}</span></div>
+      <div class="fare-row"><span class="fare-label">Date</span><span class="fare-value">${b.date} · ${b.time}</span></div>
+      <div class="fare-row"><span class="fare-label">Pickup</span><span class="fare-value" style="text-align:right;max-width:200px;">${b.pickup}</span></div>
+      <div class="fare-row"><span class="fare-label">Drop</span><span class="fare-value" style="text-align:right;max-width:200px;">${b.drop}</span></div>
+      <div class="fare-row"><span class="fare-label">Vehicle</span><span class="fare-value">${b.vehicle}</span></div>
+      ${b.driver ? `<div class="fare-row"><span class="fare-label">Driver</span><span class="fare-value">${b.driver}</span></div>` : ''}
+      ${b.distance ? `<div class="fare-row"><span class="fare-label">Distance</span><span class="fare-value">${b.distance} km</span></div>` : ''}
+      <div class="fare-row"><span class="fare-label">Payment</span><span class="fare-value">${b.paymentMode}</span></div>
+      <div class="fare-row total"><span>Total Fare</span><span class="text-primary">${b.fare > 0 ? App.formatCurrency(b.fare) : 'N/A'}</span></div>
+      ${b.rating ? `<div style="margin-top:var(--space-md);padding:var(--space-md);background:var(--color-warning-bg);border-radius:var(--radius-lg);font-size:var(--font-size-sm);color:#92400E;">⭐ You rated this delivery ${b.rating}/5</div>` : ''}
+      <div style="display:flex;gap:var(--space-sm);margin-top:var(--space-xl);">
+        ${b.status === 'Completed' ? `<button class="btn btn-outline btn-lg" style="flex:1;" onclick="App.showToast('Invoice downloaded!','success')">📄 Invoice</button>` : ''}
+        ${b.status === 'In Transit' ? `<a href="live-tracking.html" class="btn btn-primary btn-lg" style="flex:1;">🗺️ Track Live</a>` : ''}
+        ${b.status === 'Completed' ? `<button class="btn btn-primary btn-lg" style="flex:1;" onclick="rebook('${b.id}')">🔄 Rebook</button>` : ''}
+      </div>
+    `;
+    document.getElementById('detailOverlay').classList.add('show');
+    document.getElementById('detailSheet').classList.add('show');
+  }
+
+  function closeDetail() {
+    document.getElementById('detailOverlay').classList.remove('show');
+    document.getElementById('detailSheet').classList.remove('show');
+  }
+
+  function rebook(bookingId) {
+    closeDetail();
+    App.showToast('Starting new booking...', 'info');
+    setTimeout(() => window.location.href = 'home.html', 800);
+  }
+</script>
+</body>
+</html>

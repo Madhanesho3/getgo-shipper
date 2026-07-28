@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Notifications – GetGo Shipper</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/profile.css" />
+</head>
+<body>
+<div class="app-container">
+<div class="page page-with-nav">
+
+  <div class="page-header">
+    <div style="width:40px;"></div>
+    <div class="header-title">Notifications</div>
+    <button onclick="markAllRead()" style="font-size:var(--font-size-sm);font-weight:600;color:var(--color-primary);background:none;border:none;cursor:pointer;padding:var(--space-sm);">Mark all read</button>
+  </div>
+
+  <!-- Filter chips -->
+  <div style="padding:var(--space-md) var(--space-lg);border-bottom:1px solid var(--color-border-light);">
+    <div class="chips-row">
+      <div class="chip active" onclick="filterNotifs('all',this)">All</div>
+      <div class="chip" onclick="filterNotifs('booking',this)">📦 Bookings</div>
+      <div class="chip" onclick="filterNotifs('payment',this)">💳 Payments</div>
+      <div class="chip" onclick="filterNotifs('promo',this)">🎉 Offers</div>
+    </div>
+  </div>
+
+  <div class="page-content">
+    <div id="notifList"></div>
+    <div id="emptyNotifs" class="empty-state hidden">
+      <div class="empty-state-icon">🔔</div>
+      <div class="empty-state-title">No notifications</div>
+      <div class="empty-state-desc">You're all caught up!</div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="nav-item" id="nav-home">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </a>
+    <a href="my-bookings.html" class="nav-item" id="nav-bookings">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="nav-label">Bookings</span>
+    </a>
+    <a href="notifications.html" class="nav-item" id="nav-notifs" style="position:relative;">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="nav-label">Alerts</span>
+    </a>
+    <a href="wallet.html" class="nav-item" id="nav-wallet">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      <span class="nav-label">Wallet</span>
+    </a>
+    <a href="profile.html" class="nav-item" id="nav-profile">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </a>
+  </nav>
+</div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/mock-data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  App.applyDarkMode();
+  App.requireAuth();
+
+  let activeFilter = 'all';
+  let notifications = [...MOCK.notifications];
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('nav-notifs').classList.add('active');
+    renderNotifs();
+  });
+
+  function renderNotifs() {
+    const list = document.getElementById('notifList');
+    const empty = document.getElementById('emptyNotifs');
+    list.innerHTML = '';
+
+    const filtered = activeFilter === 'all' ? notifications : notifications.filter(n => n.type === activeFilter);
+
+    if (!filtered.length) {
+      list.style.display = 'none';
+      empty.classList.remove('hidden');
+      return;
+    }
+
+    list.style.display = 'block';
+    empty.classList.add('hidden');
+
+    filtered.forEach(n => {
+      const el = document.createElement('div');
+      el.className = `notif-item ${n.read ? '' : 'unread'}`;
+      el.id = 'notif_' + n.id;
+      el.onclick = () => markRead(n.id, el);
+      el.innerHTML = `
+        <div class="notif-icon">${n.icon}</div>
+        <div class="notif-content">
+          <div class="notif-title">${n.title}</div>
+          <div class="notif-body">${n.body}</div>
+          <div class="notif-time">${n.time}</div>
+        </div>
+      `;
+      list.appendChild(el);
+    });
+  }
+
+  function markRead(id, el) {
+    const notif = notifications.find(n => n.id === id);
+    if (notif) { notif.read = true; el.classList.remove('unread'); }
+  }
+
+  function markAllRead() {
+    notifications.forEach(n => n.read = true);
+    renderNotifs();
+    App.showToast('All notifications marked as read', 'success');
+  }
+
+  function filterNotifs(type, el) {
+    activeFilter = type;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    renderNotifs();
+  }
+</script>
+</body>
+</html>

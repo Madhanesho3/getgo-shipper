@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>GetGo Shipper – Logistics & Freight Marketplace</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/home.css" />
+  <style>
+    .home-hero-bg {
+      background: linear-gradient(135deg, #00C851 0%, #007A32 100%);
+      padding: var(--space-xl) var(--space-lg) var(--space-2xl);
+      color: white;
+      border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+      position: relative;
+      overflow: hidden;
+    }
+    .home-hero-bg::before {
+      content: ''; position: absolute; right: -40px; top: -40px;
+      width: 140px; height: 140px; border-radius: 50%;
+      background: rgba(255,255,255,0.1);
+    }
+    .quick-service-card {
+      background: var(--color-surface);
+      border: 1.5px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-md) var(--space-lg);
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: var(--shadow-sm); cursor: pointer;
+      transition: all var(--transition-base);
+      margin-bottom: var(--space-md);
+    }
+    .quick-service-card:hover {
+      border-color: var(--color-primary);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .service-badge {
+      font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-full);
+      text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    #miniMap {
+      width: 100%; height: 160px; border-radius: var(--radius-xl);
+      overflow: hidden; border: 1px solid var(--color-border);
+      box-shadow: var(--shadow-sm); margin-bottom: var(--space-xl);
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+<div class="page page-with-nav">
+
+  <!-- Header & Hero -->
+  <div class="home-hero-bg">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md);">
+      <div>
+        <div style="font-size:var(--font-size-xs);opacity:0.85;text-transform:uppercase;letter-spacing:1px;" id="greetingTime">Good Day,</div>
+        <div style="font-size:var(--font-size-2xl);font-weight:800;" id="userName">Arjun Sharma</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:var(--space-sm);">
+        <button class="btn-icon" style="background:rgba(255,255,255,0.2);border:none;color:white;" onclick="window.location.href='notifications.html'">
+          🔔
+        </button>
+        <button class="btn-icon" style="background:rgba(255,255,255,0.2);border:none;color:white;" onclick="window.location.href='profile.html'">
+          👤
+        </button>
+      </div>
+    </div>
+
+    <!-- Location Bar -->
+    <div style="background:rgba(255,255,255,0.15);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,0.25);border-radius:var(--radius-lg);padding:var(--space-sm) var(--space-md);display:flex;align-items:center;gap:var(--space-sm);cursor:pointer;" onclick="requestLocation()">
+      <span style="font-size:18px;">📍</span>
+      <div style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:var(--font-size-sm);font-weight:500;" id="currentLocationText">
+        Sector 12, Noida, Uttar Pradesh
+      </div>
+      <span style="font-size:12px;opacity:0.8;">▼</span>
+    </div>
+  </div>
+
+  <div class="page-content" style="padding:var(--space-lg);">
+
+    <!-- Interactive Live Location Map Preview -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm);">
+      <div style="font-size:var(--font-size-base);font-weight:700;">Nearby Drivers & Location</div>
+      <span style="font-size:var(--font-size-xs);color:var(--color-primary);font-weight:600;">Live GPS</span>
+    </div>
+    <div id="miniMap"></div>
+
+    <!-- Booking Options Header -->
+    <div style="font-size:var(--font-size-lg);font-weight:800;margin-bottom:var(--space-md);" data-i18n="book_delivery">
+      Select Delivery Type
+    </div>
+
+    <!-- 1. Parcel Delivery -->
+    <div class="quick-service-card" onclick="window.location.href='parcel-booking.html'">
+      <div style="display:flex;align-items:center;gap:var(--space-md);">
+        <div style="width:48px;height:48px;border-radius:var(--radius-lg);background:var(--color-primary-light);display:flex;align-items:center;justify-content:center;font-size:24px;">
+          📦
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:var(--space-xs);">
+            <div style="font-size:var(--font-size-md);font-weight:700;" data-i18n="parcel">Parcel Delivery</div>
+            <span class="service-badge" style="background:#E8FFF1;color:#007A32;">≤ 20 kg</span>
+          </div>
+          <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">Bike, Scooter & EV • Documents & Parcels</div>
+        </div>
+      </div>
+      <div style="font-size:20px;color:var(--color-primary);">➔</div>
+    </div>
+
+    <!-- 2. Load Delivery -->
+    <div class="quick-service-card" onclick="window.location.href='load-booking.html'">
+      <div style="display:flex;align-items:center;gap:var(--space-md);">
+        <div style="width:48px;height:48px;border-radius:var(--radius-lg);background:#EFF6FF;display:flex;align-items:center;justify-content:center;font-size:24px;">
+          🚛
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:var(--space-xs);">
+            <div style="font-size:var(--font-size-md);font-weight:700;" data-i18n="load">Load Delivery</div>
+            <span class="service-badge" style="background:#EFF6FF;color:#1E40AF;">750kg - 15T</span>
+          </div>
+          <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">Tata Ace, Mini Truck & Containers</div>
+        </div>
+      </div>
+      <div style="font-size:20px;color:#1E40AF;">➔</div>
+    </div>
+
+    <!-- 3. Freight Market -->
+    <div class="quick-service-card" onclick="window.location.href='freight-booking.html'">
+      <div style="display:flex;align-items:center;gap:var(--space-md);">
+        <div style="width:48px;height:48px;border-radius:var(--radius-lg);background:#FFFBEB;display:flex;align-items:center;justify-content:center;font-size:24px;">
+          🏗️
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;gap:var(--space-xs);">
+            <div style="font-size:var(--font-size-md);font-weight:700;" data-i18n="freight">Freight Marketplace</div>
+            <span class="service-badge" style="background:#FFFBEB;color:#D97706;">Intercity</span>
+          </div>
+          <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">Full truck loads, bidding & contract logistics</div>
+        </div>
+      </div>
+      <div style="font-size:20px;color:#D97706;">➔</div>
+    </div>
+
+    <!-- Recent Active Booking Banner -->
+    <div style="margin-top:var(--space-lg);">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-sm);">
+        <div style="font-size:var(--font-size-base);font-weight:700;" data-i18n="recent_bookings">Recent Booking</div>
+        <a href="my-bookings.html" style="font-size:var(--font-size-xs);font-weight:600;color:var(--color-primary);" data-i18n="view_all">View All</a>
+      </div>
+      <div class="card card-clickable" onclick="window.location.href='live-tracking.html'" style="border-left:4px solid var(--color-primary);">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-xs);">
+          <span class="badge badge-info">🛵 In Transit</span>
+          <span style="font-size:var(--font-size-xs);color:var(--color-text-muted);">BK2024112401</span>
+        </div>
+        <div style="font-size:var(--font-size-sm);font-weight:700;">Noida → Rajouri Garden, Delhi</div>
+        <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-top:4px;">Driver: Suresh Patel (Scooter) • OTP: <strong style="color:var(--color-primary);">5619</strong></div>
+      </div>
+    </div>
+
+    <div style="height:var(--space-2xl);"></div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="nav-item" id="nav-home">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label" data-i18n="nav_home">Home</span>
+    </a>
+    <a href="my-bookings.html" class="nav-item" id="nav-bookings">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="nav-label" data-i18n="nav_bookings">Bookings</span>
+    </a>
+    <a href="notifications.html" class="nav-item" id="nav-notifs" style="position:relative;">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="nav-label" data-i18n="nav_alerts">Alerts</span>
+    </a>
+    <a href="wallet.html" class="nav-item" id="nav-wallet">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      <span class="nav-label" data-i18n="nav_wallet">Wallet</span>
+    </a>
+    <a href="profile.html" class="nav-item" id="nav-profile">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label" data-i18n="nav_profile">Profile</span>
+    </a>
+  </nav>
+</div>
+</div>
+
+<div id="toast-container"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/mock-data.js"></script>
+<script src="js/map.js"></script>
+<script src="js/app.js"></script>
+<script>
+  App.applyDarkMode();
+  App.requireAuth();
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const session = App.getSession() || MOCK.user;
+    document.getElementById('userName').textContent = session.name || 'Arjun Sharma';
+
+    const hr = new Date().getHours();
+    let g = App.t('greeting_morning');
+    if (hr >= 12 && hr < 17) g = App.t('greeting_afternoon');
+    if (hr >= 17) g = App.t('greeting_evening');
+    document.getElementById('greetingTime').textContent = g;
+
+    // Init Mini Map
+    const mapInst = GGMap.create('miniMap', { center: [28.5355, 77.3910], zoom: 14 });
+    GGMap.setMarker('miniMap', 'user', 28.5355, 77.3910, 'user', 'Your Location');
+    GGMap.addNearbyDrivers('miniMap', [28.5355, 77.3910], MOCK.getAllVehicles());
+  });
+
+  function requestLocation() {
+    App.requestLocation((lat, lng) => {
+      GGMap.setMarker('miniMap', 'user', lat, lng, 'user', 'Updated Location');
+      GGMap.get('miniMap').panTo([lat, lng]);
+      GGMap.reverseGeocode(lat, lng).then(addr => {
+        document.getElementById('currentLocationText').textContent = addr;
+      });
+      App.showToast('Location updated via GPS!', 'success');
+    }, () => {
+      App.showToast('Failed to acquire GPS location', 'error');
+    });
+  }
+</script>
+</body>
+</html>

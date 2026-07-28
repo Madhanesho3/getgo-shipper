@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Select Vehicle – GetGo Shipper</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/booking.css" />
+  <style>
+    #vehicleMap {
+      width: 100%; height: 180px; border-radius: var(--radius-xl);
+      overflow: hidden; border: 1px solid var(--color-border);
+      margin-bottom: var(--space-md);
+    }
+    .vehicle-card-pro {
+      background: var(--color-surface);
+      border: 2px solid var(--color-border);
+      border-radius: var(--radius-xl);
+      padding: var(--space-md) var(--space-lg);
+      margin-bottom: var(--space-md);
+      cursor: pointer;
+      transition: all var(--transition-base);
+      position: relative;
+    }
+    .vehicle-card-pro:hover {
+      border-color: var(--color-primary);
+      box-shadow: var(--shadow-md);
+    }
+    .vehicle-card-pro.selected {
+      border-color: var(--color-primary);
+      background: var(--color-primary-light);
+      box-shadow: var(--shadow-primary-sm);
+    }
+    .vehicle-card-pro.disabled {
+      opacity: 0.6; pointer-events: none; background: var(--color-surface-2);
+    }
+    .status-tag {
+      font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-full);
+    }
+    .rate-badge {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--color-surface-2); border-radius: var(--radius-md);
+      padding: 3px 8px; font-size: 12px; font-weight: 700; color: var(--color-text-primary);
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+<div class="page">
+
+  <div class="page-header">
+    <a href="javascript:history.back()" class="header-back">←</a>
+    <div class="header-title" data-i18n="select_vehicle">Select Vehicle</div>
+    <div style="width:40px;"></div>
+  </div>
+
+  <div class="page-content" style="padding:var(--space-lg);">
+
+    <!-- Vehicle Map View -->
+    <div id="vehicleMap"></div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-md);">
+      <div>
+        <div style="font-size:var(--font-size-base);font-weight:700;">Choose Preferred Vehicle</div>
+        <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">Select by per-km rate & capacity</div>
+      </div>
+      <div style="font-size:var(--font-size-xs);color:var(--color-primary);font-weight:700;" id="distText">Est. Distance: -- km</div>
+    </div>
+
+    <!-- Vehicle Cards Container -->
+    <div id="vehiclesList"></div>
+
+    <button class="btn btn-primary btn-full btn-xl" id="btnConfirmVehicle" onclick="confirmVehicleSelection()">
+      Confirm Vehicle & Continue →
+    </button>
+
+  </div>
+</div>
+</div>
+
+<div id="toast-container"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/mock-data.js"></script>
+<script src="js/map.js"></script>
+<script src="js/app.js"></script>
+<script>
+  App.applyDarkMode();
+  App.requireAuth();
+
+  let booking = null;
+  let selectedVehicleId = null;
+  let estDistance = 12.5;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    booking = App.getBooking() || {};
+    const serviceType = booking.serviceType || 'parcel';
+
+    const pAddr = booking.pickupAddress || 'Noida';
+    const dAddr = (booking.stops && booking.stops[0]?.address) || 'Gurugram';
+    estDistance = MOCK.estimateDistance(pAddr, dAddr);
+    document.getElementById('distText').textContent = `Distance: ${estDistance} km`;
+
+    // Map init
+    const mapInst = GGMap.create('vehicleMap', { center: [28.5355, 77.3910], zoom: 12 });
+    const pCoords = await GGMap.geocode(pAddr) || { lat: 28.5355, lng: 77.3910 };
+    GGMap.setMarker('vehicleMap', 'p', pCoords.lat, pCoords.lng, 'pickup', 'Pickup');
+
+    // Filter vehicle list according to service
+    const list = serviceType === 'load' ? MOCK.vehicles.load :
+                 serviceType === 'freight' ? MOCK.vehicles.load.slice(3) :
+                 MOCK.vehicles.parcel;
+
+    GGMap.addNearbyDrivers('vehicleMap', [pCoords.lat, pCoords.lng], list);
+
+    renderVehicles(list);
+  });
+
+  function renderVehicles(vehicles) {
+    const container = document.getElementById('vehiclesList');
+    container.innerHTML = '';
+
+    vehicles.forEach((v, i) => {
+      const fare = MOCK.calculateFare(v, estDistance, {
+        loading: booking.loadingAssist,
+        labour: booking.labourAssist,
+        stops: booking.stops?.length || 1,
+      });
+
+      const isFirstAvailable = !selectedVehicleId && v.available;
+      if (isFirstAvailable) selectedVehicleId = v.id;
+
+      const isSelected = selectedVehicleId === v.id;
+
+      const card = document.createElement('div');
+      card.className = `vehicle-card-pro ${isSelected ? 'selected' : ''} ${!v.available ? 'disabled' : ''}`;
+      card.onclick = () => {
+        if (!v.available) return;
+        selectedVehicleId = v.id;
+        document.querySelectorAll('.vehicle-card-pro').forEach(c => c.classList.remove('selected'));
+        card.classList.add('selected');
+      };
+
+      card.innerHTML = `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span style="font-size:26px;">${v.icon}</span>
+            <div>
+              <div style="font-weight:800;font-size:var(--font-size-md);">${v.name}</div>
+              <div style="font-size:11px;color:var(--color-text-secondary);">Base Fare: ₹${v.baseFare}</div>
+            </div>
+            <span class="status-tag" style="background:${v.tagColor}15;color:${v.tagColor};margin-left:4px;">${v.tag}</span>
+          </div>
+          <div style="text-align:right;">
+            <div style="font-weight:900;font-size:var(--font-size-xl);color:var(--color-primary);">₹${fare}</div>
+            <div class="rate-badge">₹${v.perKm} / km</div>
+          </div>
+        </div>
+
+        <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);margin-top:6px;margin-bottom:4px;">
+          📦 Capacity: <strong>${v.capacity}</strong> • Dimensions: <strong>${v.dims}</strong>
+        </div>
+        <div style="font-size:var(--font-size-xs);color:var(--color-text-muted);">
+          Best for: ${v.suitable}
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;padding-top:8px;border-top:1px dashed var(--color-border-light);font-size:11px;">
+          <span>⏱️ ETA: <strong>${v.eta}</strong></span>
+          <span>${v.available ? `🟢 ${v.nearbyCount} vehicles nearby` : `🔴 Next available in ${v.nextAvailableIn}m`}</span>
+        </div>
+      `;
+
+      container.appendChild(card);
+    });
+  }
+
+  function confirmVehicleSelection() {
+    if (!selectedVehicleId) {
+      App.showToast('Please select a vehicle', 'error');
+      return;
+    }
+
+    const vehicle = MOCK.getVehicle(selectedVehicleId);
+    const totalFare = MOCK.calculateFare(vehicle, estDistance, {
+      loading: booking.loadingAssist,
+      labour: booking.labourAssist,
+      stops: booking.stops?.length || 1,
+    });
+
+    App.saveBooking({
+      vehicleId: selectedVehicleId,
+      vehicleName: vehicle.name,
+      vehicleIcon: vehicle.icon,
+      perKm: vehicle.perKm,
+      baseFare: vehicle.baseFare,
+      distance: estDistance,
+      fare: totalFare,
+      eta: vehicle.eta,
+    });
+
+    window.location.href = 'booking-confirm.html';
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Help & Support – GetGo Shipper</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/profile.css" />
+</head>
+<body>
+<div class="app-container">
+<div class="page">
+
+  <div class="page-header">
+    <a href="profile.html" class="header-back">←</a>
+    <div class="header-title">Help & Support</div>
+    <div style="width:40px;"></div>
+  </div>
+
+  <div class="page-content">
+    <div style="padding:var(--space-lg);">
+
+      <!-- Hero -->
+      <div style="background:linear-gradient(135deg,var(--color-primary),var(--color-primary-dark));border-radius:var(--radius-2xl);padding:var(--space-2xl);text-align:center;margin-bottom:var(--space-xl);position:relative;overflow:hidden;">
+        <div style="position:absolute;right:-20px;top:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,255,255,0.1);"></div>
+        <div style="font-size:40px;margin-bottom:var(--space-sm);">🆘</div>
+        <div style="font-size:var(--font-size-xl);font-weight:800;color:white;margin-bottom:4px;">How can we help?</div>
+        <div style="font-size:var(--font-size-sm);color:rgba(255,255,255,0.85);">Search or browse our support topics below</div>
+        <div class="search-bar" style="margin-top:var(--space-xl);background:rgba(255,255,255,0.15);border-color:rgba(255,255,255,0.3);">
+          <span class="search-bar-icon" style="color:rgba(255,255,255,0.8);">🔍</span>
+          <input type="text" placeholder="Search help topics..." style="color:white;background:transparent;" oninput="filterFAQ(this.value)" />
+        </div>
+      </div>
+
+      <!-- Quick Contact -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:var(--space-md);margin-bottom:var(--space-xl);">
+        <button class="card card-clickable" style="text-align:center;padding:var(--space-xl);" onclick="App.showToast('Connecting to live chat...','info')">
+          <div style="font-size:32px;margin-bottom:var(--space-sm);">💬</div>
+          <div style="font-size:var(--font-size-base);font-weight:700;color:var(--color-text-primary);">Live Chat</div>
+          <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">Avg. reply: 2 min</div>
+        </button>
+        <button class="card card-clickable" style="text-align:center;padding:var(--space-xl);" onclick="App.showToast('Calling support: 1800-GETGO-99','info')">
+          <div style="font-size:32px;margin-bottom:var(--space-sm);">📞</div>
+          <div style="font-size:var(--font-size-base);font-weight:700;color:var(--color-text-primary);">Call Us</div>
+          <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">1800-GETGO-99</div>
+        </button>
+        <button class="card card-clickable" style="text-align:center;padding:var(--space-xl);" onclick="App.showToast('Opening email client...','info')">
+          <div style="font-size:32px;margin-bottom:var(--space-sm);">📧</div>
+          <div style="font-size:var(--font-size-base);font-weight:700;color:var(--color-text-primary);">Email Us</div>
+          <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">help@getgoshipper.in</div>
+        </button>
+        <button class="card card-clickable" style="text-align:center;padding:var(--space-xl);" onclick="App.showToast('Opening WhatsApp...','info')">
+          <div style="font-size:32px;margin-bottom:var(--space-sm);">📲</div>
+          <div style="font-size:var(--font-size-base);font-weight:700;color:var(--color-text-primary);">WhatsApp</div>
+          <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);">+91 98765 00000</div>
+        </button>
+      </div>
+
+      <!-- Topic Filter -->
+      <div class="chips-row" style="margin-bottom:var(--space-lg);">
+        <div class="chip active" onclick="filterTopic('all',this)">All Topics</div>
+        <div class="chip" onclick="filterTopic('booking',this)">📦 Bookings</div>
+        <div class="chip" onclick="filterTopic('payment',this)">💳 Payment</div>
+        <div class="chip" onclick="filterTopic('driver',this)">🚗 Driver</div>
+        <div class="chip" onclick="filterTopic('account',this)">👤 Account</div>
+      </div>
+
+      <!-- FAQs -->
+      <div class="section-title" style="margin-bottom:var(--space-md);">Frequently Asked Questions</div>
+      <div id="faqList"></div>
+
+      <!-- Report Issue -->
+      <div style="margin-top:var(--space-3xl);">
+        <div class="section-title" style="margin-bottom:var(--space-md);">Report a Problem</div>
+        <div class="card">
+          <div class="flex-col gap-lg">
+            <div class="form-group">
+              <label class="form-label">Issue Type</label>
+              <select class="form-select">
+                <option>Booking Issue</option>
+                <option>Driver Behaviour</option>
+                <option>Payment Problem</option>
+                <option>App Bug</option>
+                <option>Delivery Damage</option>
+                <option>Other</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Booking ID (optional)</label>
+              <input type="text" class="form-input" placeholder="e.g. BK2024112301" />
+            </div>
+            <div class="form-group">
+              <label class="form-label">Describe the Issue</label>
+              <textarea class="form-input form-textarea" placeholder="Please describe your issue in detail..." style="min-height:100px;"></textarea>
+            </div>
+            <button class="btn btn-primary btn-full btn-lg" onclick="submitIssue()">Submit Report →</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="height:var(--space-3xl);"></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/mock-data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  App.applyDarkMode();
+  App.requireAuth();
+
+  const faqs = [
+    { q: 'How do I book a parcel delivery?', a: 'Tap "Parcel Delivery" on the home screen, enter pickup & drop addresses, fill receiver details, choose a vehicle, and confirm your booking!', topic: 'booking' },
+    { q: 'What vehicles are available?', a: 'For parcels: Bike, Scooter, EV Bike. For loads: Tata Ace, Mini Truck, Pickup Truck, Medium & Large Trucks, Container Trucks.', topic: 'booking' },
+    { q: 'How is the fare calculated?', a: 'Fare = Base Fare + (Distance × Per KM Rate) + Any additional charges (loading, unloading, extra stops).', topic: 'payment' },
+    { q: 'Which payment methods are accepted?', a: 'UPI (Google Pay, PhonePe, Paytm), Debit/Credit Cards, Net Banking, GetGo Wallet, and Cash (on delivery).', topic: 'payment' },
+    { q: 'How do I cancel a booking?', a: 'Go to My Bookings, select the active booking, and tap "Cancel". Cancellations are free if done before driver is assigned.', topic: 'booking' },
+    { q: 'What if my driver doesn\'t arrive?', a: 'If your driver doesn\'t arrive within the ETA, use the "Report Issue" button in the live tracking screen. We\'ll reassign immediately.', topic: 'driver' },
+    { q: 'Is my package insured?', a: 'All deliveries are covered up to ₹5,000. For higher value items, declare the value during booking for enhanced protection.', topic: 'booking' },
+    { q: 'How do I add money to my wallet?', a: 'Go to Wallet → Add Money, choose an amount, select UPI/Card, and confirm. Money is instantly credited.', topic: 'payment' },
+    { q: 'How do I change my account details?', a: 'Go to Profile → Personal Information to update your name, email, and phone number.', topic: 'account' },
+    { q: 'What is the referral program?', a: 'Share your unique referral code from Profile. You earn ₹50 wallet cash for every friend who completes their first booking.', topic: 'account' },
+    { q: 'How do I rate my driver?', a: 'After delivery completion, you\'ll be prompted to rate your driver. You can also rate from My Bookings → Completed tab.', topic: 'driver' },
+    { q: 'How do I track my delivery?', a: 'After booking confirmation, go to My Bookings → Active and tap "Track Live". You\'ll see real-time driver location on the map.', topic: 'booking' },
+  ];
+
+  let currentTopic = 'all';
+  let searchQuery = '';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    renderFAQs();
+  });
+
+  function renderFAQs() {
+    const list = document.getElementById('faqList');
+    list.innerHTML = '';
+    const filtered = faqs.filter(f =>
+      (currentTopic === 'all' || f.topic === currentTopic) &&
+      (f.q.toLowerCase().includes(searchQuery) || f.a.toLowerCase().includes(searchQuery))
+    );
+
+    if (!filtered.length) {
+      list.innerHTML = '<div class="empty-state" style="padding:var(--space-2xl) 0;"><div class="empty-state-icon">🔍</div><div class="empty-state-title">No results found</div></div>';
+      return;
+    }
+
+    filtered.forEach(f => {
+      const item = document.createElement('div');
+      item.className = 'faq-item';
+      item.innerHTML = `
+        <div class="faq-question" onclick="toggleFAQ(this.parentElement)">
+          <span>${f.q}</span>
+          <div class="faq-arrow">▼</div>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-inner">${f.a}</div>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+  }
+
+  function toggleFAQ(item) {
+    const isOpen = item.classList.contains('open');
+    document.querySelectorAll('.faq-item').forEach(f => f.classList.remove('open'));
+    if (!isOpen) item.classList.add('open');
+  }
+
+  function filterTopic(topic, el) {
+    currentTopic = topic;
+    document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    renderFAQs();
+  }
+
+  function filterFAQ(query) {
+    searchQuery = query.toLowerCase();
+    renderFAQs();
+  }
+
+  function submitIssue() {
+    App.showToast('Issue reported! We\'ll respond within 24 hours.', 'success', 4000);
+  }
+</script>
+</body>
+</html>

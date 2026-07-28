@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Parcel Delivery – GetGo Shipper</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/booking.css" />
+  <style>
+    #parcelMap {
+      width: 100%; height: 200px; border-radius: var(--radius-xl);
+      overflow: hidden; border: 1px solid var(--color-border);
+      margin-bottom: var(--space-lg);
+    }
+    .stop-card {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-lg);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+      position: relative;
+    }
+    .stop-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: var(--space-xs); font-weight: 700; font-size: var(--font-size-sm);
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+<div class="page">
+
+  <div class="page-header">
+    <a href="home.html" class="header-back">←</a>
+    <div class="header-title" data-i18n="parcel">Parcel Delivery</div>
+    <div style="width:40px;"></div>
+  </div>
+
+  <div class="page-content">
+
+    <!-- Step Indicators -->
+    <div class="step-wizard">
+      <div class="step-indicators">
+        <div class="step-dot active" id="dot-1">1</div>
+        <div class="step-line" id="line-1"></div>
+        <div class="step-dot" id="dot-2">2</div>
+        <div class="step-line" id="line-2"></div>
+        <div class="step-dot" id="dot-3">3</div>
+      </div>
+
+      <!-- STEP 1: Locations & Multi-Drop Receivers -->
+      <div class="step-content active" id="step-1">
+        <!-- Single / Multi Drop Toggle -->
+        <div class="tabs">
+          <div class="tab-item active" onclick="setDeliveryType('single', this)">Single Delivery</div>
+          <div class="tab-item" onclick="setDeliveryType('multi', this)">Multi-Drop (Up to 5)</div>
+        </div>
+
+        <!-- Interactive Map Preview -->
+        <div id="parcelMap"></div>
+
+        <!-- Pickup Location -->
+        <div class="form-group mb-lg">
+          <label class="form-label">📍 Pickup Address <span class="required">*</span></label>
+          <div class="input-wrapper">
+            <input type="text" class="form-input" id="pickupAddr" value="14, Anand Nagar, Sector 12, Noida" placeholder="Enter pickup address" onchange="updateMapRoute()" />
+          </div>
+        </div>
+
+        <!-- Drop Locations / Receivers Container -->
+        <div id="dropsContainer">
+          <div class="stop-card" data-stop="1">
+            <div class="stop-header">
+              <span>🏁 Drop Location 1</span>
+            </div>
+            <div class="form-group mb-sm">
+              <label class="form-label">Address <span class="required">*</span></label>
+              <input type="text" class="form-input stop-address" placeholder="Enter drop address" value="Tower B, Cyber City, Gurugram" onchange="updateMapRoute()" />
+            </div>
+            <div class="grid-2">
+              <div class="form-group">
+                <label class="form-label">Receiver Name <span class="required">*</span></label>
+                <input type="text" class="form-input stop-name" placeholder="Name" value="Rahul Mehta" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Mobile (for OTP) <span class="required">*</span></label>
+                <input type="tel" class="form-input stop-phone" placeholder="10-digit mobile" maxlength="10" value="9876543210" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Add Stop Button (Multi-drop) -->
+        <button class="btn btn-outline btn-full mb-lg hidden" id="addStopBtn" onclick="addStopInput()">
+          + Add Another Stop
+        </button>
+
+        <button class="btn btn-primary btn-full btn-xl" onclick="goToStep(2)">
+          Continue to Package Details →
+        </button>
+      </div>
+
+      <!-- STEP 2: Package Details -->
+      <div class="step-content" id="step-2">
+        <h3 class="mb-lg">Package Details</h3>
+
+        <div class="form-group mb-lg">
+          <label class="form-label">Package Type</label>
+          <select class="form-select" id="packageType">
+            <option>Box / Carton</option>
+            <option>Document / Envelope</option>
+            <option>Electronics / Gadgets</option>
+            <option>Clothes / Apparel</option>
+            <option>Food / Grocery</option>
+            <option>Fragile / Glassware</option>
+            <option>Medicine / Pharma</option>
+          </select>
+        </div>
+
+        <div class="form-group mb-lg">
+          <label class="form-label">Approx Weight (kg)</label>
+          <div class="chips-row">
+            <div class="chip active" onclick="setWeight(2, this)">≤ 2 kg</div>
+            <div class="chip" onclick="setWeight(5, this)">≤ 5 kg</div>
+            <div class="chip" onclick="setWeight(10, this)">≤ 10 kg</div>
+            <div class="chip" onclick="setWeight(20, this)">≤ 20 kg</div>
+          </div>
+        </div>
+
+        <div class="form-group mb-lg">
+          <label class="form-label">Handling Instructions (Optional)</label>
+          <textarea class="form-input form-textarea" id="instructions" placeholder="e.g. Handle with care, keep upright, call before delivery"></textarea>
+        </div>
+
+        <div class="grid-2">
+          <button class="btn btn-secondary btn-xl" onclick="goToStep(1)">← Back</button>
+          <button class="btn btn-primary btn-xl" onclick="goToStep(3)">Select Vehicle →</button>
+        </div>
+      </div>
+
+      <!-- STEP 3: Confirm Options -->
+      <div class="step-content" id="step-3">
+        <h3 class="mb-lg">Review & Vehicle Options</h3>
+
+        <div class="card mb-lg">
+          <div style="font-weight:700;margin-bottom:8px;">Booking Summary</div>
+          <div style="font-size:var(--font-size-sm);color:var(--color-text-secondary);" id="summaryText"></div>
+        </div>
+
+        <div class="grid-2">
+          <button class="btn btn-secondary btn-xl" onclick="goToStep(2)">← Back</button>
+          <button class="btn btn-primary btn-xl" onclick="proceedToVehicleSelect()">Find Vehicle 🏍️</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="toast-container"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/mock-data.js"></script>
+<script src="js/map.js"></script>
+<script src="js/app.js"></script>
+<script>
+  App.applyDarkMode();
+  App.requireAuth();
+
+  let deliveryType = 'single';
+  let stopCount = 1;
+  let selectedWeight = 2;
+
+  document.addEventListener('DOMContentLoaded', () => {
+    GGMap.create('parcelMap', { center: [28.5355, 77.3910], zoom: 12 });
+    updateMapRoute();
+  });
+
+  function setDeliveryType(type, el) {
+    deliveryType = type;
+    document.querySelectorAll('.tabs .tab-item').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('addStopBtn').classList.toggle('hidden', type === 'single');
+    updateMapRoute();
+  }
+
+  function addStopInput() {
+    if (stopCount >= 5) {
+      App.showToast('Maximum 5 stops allowed', 'warning');
+      return;
+    }
+    stopCount++;
+    const container = document.getElementById('dropsContainer');
+    const div = document.createElement('div');
+    div.className = 'stop-card';
+    div.setAttribute('data-stop', stopCount);
+    div.innerHTML = `
+      <div class="stop-header">
+        <span>🏁 Drop Location ${stopCount}</span>
+        <button style="color:var(--color-error);background:none;border:none;cursor:pointer;" onclick="removeStop(this)">Remove</button>
+      </div>
+      <div class="form-group mb-sm">
+        <label class="form-label">Address <span class="required">*</span></label>
+        <input type="text" class="form-input stop-address" placeholder="Enter drop address" onchange="updateMapRoute()" />
+      </div>
+      <div class="grid-2">
+        <div class="form-group">
+          <label class="form-label">Receiver Name <span class="required">*</span></label>
+          <input type="text" class="form-input stop-name" placeholder="Name" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Mobile (for OTP) <span class="required">*</span></label>
+          <input type="tel" class="form-input stop-phone" placeholder="10-digit mobile" maxlength="10" />
+        </div>
+      </div>
+    `;
+    container.appendChild(div);
+  }
+
+  function removeStop(btn) {
+    btn.closest('.stop-card').remove();
+    stopCount--;
+    updateMapRoute();
+  }
+
+  async function updateMapRoute() {
+    const pickup = document.getElementById('pickupAddr').value;
+    const stops = Array.from(document.querySelectorAll('.stop-address')).map(i => i.value).filter(Boolean);
+
+    GGMap.clearMarkers('parcelMap');
+
+    const pCoords = await GGMap.geocode(pickup) || { lat: 28.5355, lng: 77.3910 };
+    GGMap.setMarker('parcelMap', 'pickup', pCoords.lat, pCoords.lng, 'pickup', 'Pickup');
+
+    const points = [pCoords];
+    for (let i = 0; i < stops.length; i++) {
+      const coords = await GGMap.geocode(stops[i]);
+      if (coords) {
+        GGMap.setMarker('parcelMap', `drop_${i}`, coords.lat, coords.lng, 'drop', `Stop ${i+1}`);
+        points.push(coords);
+      }
+    }
+
+    if (points.length >= 2) {
+      GGMap.drawRoute('parcelMap', points);
+    }
+  }
+
+  function setWeight(w, el) {
+    selectedWeight = w;
+    document.querySelectorAll('.chips-row .chip').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  function goToStep(s) {
+    if (s === 2) {
+      const pickup = document.getElementById('pickupAddr').value.trim();
+      if (!pickup) { App.showToast('Please enter pickup address', 'error'); return; }
+    }
+
+    document.querySelectorAll('.step-dot').forEach((d, i) => {
+      d.classList.toggle('active', i + 1 === s);
+      d.classList.toggle('done', i + 1 < s);
+    });
+    document.querySelectorAll('.step-line').forEach((l, i) => {
+      l.classList.toggle('done', i + 1 < s);
+    });
+    document.querySelectorAll('.step-content').forEach((c, i) => {
+      c.classList.toggle('active', i + 1 === s);
+    });
+
+    if (s === 3) {
+      const stops = Array.from(document.querySelectorAll('.stop-card')).map(card => ({
+        address: card.querySelector('.stop-address').value,
+        name: card.querySelector('.stop-name').value,
+        phone: card.querySelector('.stop-phone').value,
+        otp: MOCK.generateOTP(),
+      }));
+      const summary = `
+        📍 <strong>Pickup:</strong> ${document.getElementById('pickupAddr').value}<br/>
+        🏁 <strong>Stops:</strong> ${stops.length} location(s)<br/>
+        📦 <strong>Package:</strong> ${document.getElementById('packageType').value} (${selectedWeight} kg)
+      `;
+      document.getElementById('summaryText').innerHTML = summary;
+    }
+  }
+
+  function proceedToVehicleSelect() {
+    const stops = Array.from(document.querySelectorAll('.stop-card')).map(card => ({
+      address: card.querySelector('.stop-address').value,
+      name: card.querySelector('.stop-name').value,
+      phone: card.querySelector('.stop-phone').value,
+      otp: MOCK.generateOTP(),
+    }));
+
+    App.saveBooking({
+      serviceType: 'parcel',
+      deliveryType,
+      pickupAddress: document.getElementById('pickupAddr').value,
+      stops,
+      packageType: document.getElementById('packageType').value,
+      weight: selectedWeight,
+      instructions: document.getElementById('instructions').value,
+    });
+
+    window.location.href = 'vehicle-select.html';
+  }
+</script>
+</body>
+</html>

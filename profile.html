@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Profile – GetGo Shipper</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/profile.css" />
+</head>
+<body>
+<div class="app-container">
+<div class="page page-with-nav">
+
+  <div class="page-content">
+
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="profile-avatar-wrap">
+        <div class="profile-avatar" id="profileAvatar">A</div>
+        <div class="profile-avatar-edit" onclick="document.getElementById('avatarInput').click()">📷</div>
+        <input type="file" id="avatarInput" accept="image/*" style="display:none;" onchange="handleAvatarChange(this)" />
+      </div>
+      <div class="profile-name" id="profileName">Arjun Sharma</div>
+      <div class="profile-phone" id="profilePhone">+91 98765 43210</div>
+
+      <div class="profile-stats">
+        <div class="profile-stat">
+          <div class="profile-stat-value" id="pStatShipments">47</div>
+          <div class="profile-stat-label">Shipments</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-value" id="pStatRating">4.8⭐</div>
+          <div class="profile-stat-label">Rating</div>
+        </div>
+        <div class="profile-stat">
+          <div class="profile-stat-value" id="pStatBalance">₹2.4K</div>
+          <div class="profile-stat-label">Wallet</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="profile-body">
+
+      <!-- Account Details -->
+      <div class="profile-section">
+        <div class="profile-section-title">Account Details</div>
+        <div class="list-item" onclick="showEditProfile()">
+          <div class="list-item-icon primary">👤</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Personal Information</div>
+            <div class="list-item-desc" id="pEmail">arjun.sharma@gmail.com</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+        <div class="list-item" onclick="window.location.href='saved-addresses.html'">
+          <div class="list-item-icon primary">📍</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Saved Addresses</div>
+            <div class="list-item-desc">Home, Office, 1 more</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+        <div class="list-item" onclick="window.location.href='wallet.html'">
+          <div class="list-item-icon primary">💳</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Payment Methods</div>
+            <div class="list-item-desc">Google Pay, HDFC Card</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+      </div>
+
+      <!-- Referral Card -->
+      <div style="background:linear-gradient(135deg,var(--color-primary),var(--color-primary-dark));border-radius:var(--radius-xl);padding:var(--space-xl);margin-bottom:var(--space-lg);position:relative;overflow:hidden;">
+        <div style="position:absolute;right:-20px;top:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.1);"></div>
+        <div style="font-size:var(--font-size-lg);font-weight:800;color:white;margin-bottom:4px;">🎁 Refer & Earn</div>
+        <div style="font-size:var(--font-size-sm);color:rgba(255,255,255,0.85);margin-bottom:var(--space-md);">Earn ₹50 for every friend who places their first booking!</div>
+        <div style="display:flex;align-items:center;gap:var(--space-sm);">
+          <div style="background:rgba(255,255,255,0.15);border:1.5px dashed rgba(255,255,255,0.4);border-radius:var(--radius-md);padding:var(--space-sm) var(--space-md);font-size:var(--font-size-base);font-weight:800;color:white;letter-spacing:2px;" id="referralCode">ARJUN20</div>
+          <button class="btn btn-sm" style="background:white;color:var(--color-primary);border:none;" onclick="copyReferral()">Copy</button>
+          <button class="btn btn-sm" style="background:rgba(255,255,255,0.2);color:white;border:1px solid rgba(255,255,255,0.3);" onclick="shareReferral()">Share</button>
+        </div>
+      </div>
+
+      <!-- App Settings -->
+      <div class="profile-section">
+        <div class="profile-section-title">App Settings</div>
+        <div class="list-item" onclick="window.location.href='settings.html'">
+          <div class="list-item-icon">⚙️</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Settings</div>
+            <div class="list-item-desc">Dark mode, language, notifications</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+        <div class="list-item" onclick="window.location.href='notifications.html'">
+          <div class="list-item-icon">🔔</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Notification Preferences</div>
+            <div class="list-item-desc">Booking, payment, promo alerts</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+      </div>
+
+      <!-- Support -->
+      <div class="profile-section">
+        <div class="profile-section-title">Support & Legal</div>
+        <div class="list-item" onclick="window.location.href='help-support.html'">
+          <div class="list-item-icon">🆘</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Help & Support</div>
+            <div class="list-item-desc">FAQs, live chat, call us</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+        <div class="list-item" onclick="App.showToast('Opening Privacy Policy...','info')">
+          <div class="list-item-icon">🔒</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Privacy Policy</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+        <div class="list-item" onclick="App.showToast('Opening Terms...','info')">
+          <div class="list-item-icon">📋</div>
+          <div class="list-item-content">
+            <div class="list-item-title">Terms & Conditions</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+        <div class="list-item" onclick="App.showToast('App version 2.4.1','info')">
+          <div class="list-item-icon">ℹ️</div>
+          <div class="list-item-content">
+            <div class="list-item-title">About GetGo Shipper</div>
+            <div class="list-item-desc">Version 2.4.1</div>
+          </div>
+          <div class="list-item-arrow">›</div>
+        </div>
+      </div>
+
+      <!-- Danger Zone -->
+      <div class="profile-section">
+        <div class="profile-section-title">Account Actions</div>
+        <div class="list-item" onclick="confirmLogout()">
+          <div class="list-item-icon danger">🚪</div>
+          <div class="list-item-content">
+            <div class="list-item-title" style="color:var(--color-error);">Logout</div>
+          </div>
+          <div class="list-item-arrow" style="color:var(--color-error);">›</div>
+        </div>
+        <div class="list-item" onclick="confirmDelete()">
+          <div class="list-item-icon danger">🗑️</div>
+          <div class="list-item-content">
+            <div class="list-item-title" style="color:var(--color-error);">Delete Account</div>
+            <div class="list-item-desc">This action cannot be undone</div>
+          </div>
+          <div class="list-item-arrow" style="color:var(--color-error);">›</div>
+        </div>
+      </div>
+
+      <div style="height:var(--space-3xl);"></div>
+    </div>
+  </div>
+
+  <!-- Bottom Nav -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="nav-item" id="nav-home">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <span class="nav-label">Home</span>
+    </a>
+    <a href="my-bookings.html" class="nav-item" id="nav-bookings">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      <span class="nav-label">Bookings</span>
+    </a>
+    <a href="notifications.html" class="nav-item" id="nav-notifs" style="position:relative;">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="nav-label">Alerts</span>
+    </a>
+    <a href="wallet.html" class="nav-item" id="nav-wallet">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      <span class="nav-label">Wallet</span>
+    </a>
+    <a href="profile.html" class="nav-item" id="nav-profile">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      <span class="nav-label">Profile</span>
+    </a>
+  </nav>
+</div>
+</div>
+
+<!-- Edit Profile Sheet -->
+<div class="overlay" id="editOverlay" onclick="closeEdit()"></div>
+<div class="bottom-sheet" id="editSheet">
+  <div class="bottom-sheet-handle"></div>
+  <div style="padding:var(--space-lg) var(--space-xl) var(--space-3xl);">
+    <h3 style="margin-bottom:var(--space-xl);">Edit Profile</h3>
+    <div class="flex-col gap-lg">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input type="text" class="form-input" id="editName" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" class="form-input" id="editEmail" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Mobile</label>
+        <input type="tel" class="form-input" id="editPhone" maxlength="10" />
+      </div>
+      <button class="btn btn-primary btn-full btn-xl" onclick="saveProfile()">Save Changes ✓</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="js/mock-data.js"></script>
+<script src="js/app.js"></script>
+<script>
+  App.applyDarkMode();
+  App.requireAuth();
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('nav-profile').classList.add('active');
+    const session = App.getSession() || MOCK.user;
+    const firstName = session.name.split(' ')[0];
+    document.getElementById('profileName').textContent = session.name;
+    document.getElementById('profilePhone').textContent = session.phone;
+    document.getElementById('pEmail').textContent = session.email;
+    document.getElementById('profileAvatar').textContent = firstName[0].toUpperCase();
+    document.getElementById('pStatShipments').textContent = session.totalShipments || 47;
+    document.getElementById('pStatRating').textContent = (session.rating || 4.8) + '⭐';
+    document.getElementById('pStatBalance').textContent = '₹' + ((session.walletBalance || 2450) / 1000).toFixed(1) + 'K';
+    document.getElementById('referralCode').textContent = session.referralCode || 'ARJUN20';
+
+    // Edit form pre-fill
+    document.getElementById('editName').value = session.name;
+    document.getElementById('editEmail').value = session.email;
+    document.getElementById('editPhone').value = session.phone.replace(/\D/g,'').slice(-10);
+  });
+
+  function handleAvatarChange(input) {
+    if (!input.files[0]) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+      const av = document.getElementById('profileAvatar');
+      av.style.backgroundImage = `url(${e.target.result})`;
+      av.style.backgroundSize = 'cover';
+      av.textContent = '';
+      App.showToast('Profile photo updated!', 'success');
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
+
+  function showEditProfile() {
+    document.getElementById('editOverlay').classList.add('show');
+    document.getElementById('editSheet').classList.add('show');
+  }
+
+  function closeEdit() {
+    document.getElementById('editOverlay').classList.remove('show');
+    document.getElementById('editSheet').classList.remove('show');
+  }
+
+  function saveProfile() {
+    const name = document.getElementById('editName').value.trim();
+    const email = document.getElementById('editEmail').value.trim();
+    const phone = document.getElementById('editPhone').value.trim();
+    if (!name) { App.showToast('Name is required','error'); return; }
+    const session = App.getSession() || {};
+    App.login({ ...session, name, email, phone: '+91 ' + phone });
+    document.getElementById('profileName').textContent = name;
+    document.getElementById('pEmail').textContent = email;
+    document.getElementById('profileAvatar').textContent = name[0].toUpperCase();
+    closeEdit();
+    App.showToast('Profile updated successfully!', 'success');
+  }
+
+  function copyReferral() {
+    const code = document.getElementById('referralCode').textContent;
+    navigator.clipboard.writeText(code).then(() => App.showToast('Referral code copied!', 'success'));
+  }
+
+  function shareReferral() {
+    const code = document.getElementById('referralCode').textContent;
+    const text = `Join GetGo Shipper – India's fastest logistics platform!\nUse my code ${code} to get ₹100 off your first booking!\nhttps://getgoshipper.in`;
+    if (navigator.share) navigator.share({ text });
+    else navigator.clipboard.writeText(text).then(() => App.showToast('Link copied!', 'success'));
+  }
+
+  function confirmLogout() {
+    if (confirm('Are you sure you want to logout?')) {
+      App.showToast('Logged out successfully', 'info');
+      setTimeout(() => App.logout(), 1000);
+    }
+  }
+
+  function confirmDelete() {
+    if (confirm('⚠️ Delete your account permanently? This cannot be undone.')) {
+      App.showToast('Account deletion requested. We will process within 7 days.', 'warning', 5000);
+    }
+  }
+</script>
+</body>
+</html>

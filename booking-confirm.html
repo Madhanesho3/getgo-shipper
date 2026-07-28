@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Confirm Booking – GetGo Shipper</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/booking.css" />
+  <style>
+    #confirmMap {
+      width: 100%; height: 160px; border-radius: var(--radius-xl);
+      overflow: hidden; border: 1px solid var(--color-border);
+      margin-bottom: var(--space-md);
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+<div class="page">
+
+  <div class="page-header">
+    <a href="javascript:history.back()" class="header-back">←</a>
+    <div class="header-title" data-i18n="confirm_booking">Confirm & Pay</div>
+    <div style="width:40px;"></div>
+  </div>
+
+  <div class="page-content" style="padding:var(--space-lg);">
+
+    <div id="confirmMap"></div>
+
+    <!-- Booking Summary Card -->
+    <div class="card mb-lg">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-xs);">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:24px;" id="vIcon">🛵</span>
+          <div>
+            <div style="font-weight:700;" id="vName">Scooter</div>
+            <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);" id="vRate">Rate: ₹10/km • Base: ₹35</div>
+          </div>
+        </div>
+        <span class="badge badge-success">Available</span>
+      </div>
+      <div style="font-size:var(--font-size-xs);color:var(--color-text-muted);" id="routeSummary">
+        📍 Pickup → 🏁 Drop
+      </div>
+    </div>
+
+    <!-- Receiver & OTP Summary Card -->
+    <div class="card mb-lg">
+      <div style="font-weight:700;margin-bottom:var(--space-xs);">Receivers & OTP Info</div>
+      <div id="receiversList" style="font-size:var(--font-size-sm);color:var(--color-text-secondary);"></div>
+    </div>
+
+    <!-- Promo Code Input -->
+    <div class="card mb-lg">
+      <div style="font-weight:700;margin-bottom:var(--space-xs);">Promo Code</div>
+      <div style="display:flex;gap:var(--space-sm);">
+        <input type="text" class="form-input" id="promoCode" placeholder="Enter coupon (e.g. GETGO10)" style="text-transform:uppercase;" />
+        <button class="btn btn-primary" onclick="applyCoupon()">Apply</button>
+      </div>
+      <div style="font-size:var(--font-size-xs);color:var(--color-success);margin-top:4px;display:none;" id="promoSuccess"></div>
+    </div>
+
+    <!-- Payment Mode Selection -->
+    <div class="card mb-lg">
+      <div style="font-weight:700;margin-bottom:var(--space-sm);" data-i18n="payment_method">Payment Method</div>
+      <div class="flex-col gap-sm">
+        <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span>💳</span><span>GetGo Wallet (₹2,450)</span>
+          </div>
+          <input type="radio" name="payMode" value="Wallet" checked />
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span>📲</span><span>UPI (Google Pay / PhonePe)</span>
+          </div>
+          <input type="radio" name="payMode" value="UPI" />
+        </label>
+        <label style="display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+          <div style="display:flex;align-items:center;gap:8px;">
+            <span>💵</span><span>Cash on Delivery</span>
+          </div>
+          <input type="radio" name="payMode" value="Cash" />
+        </label>
+      </div>
+    </div>
+
+    <!-- Fare Breakdown -->
+    <div class="card mb-lg">
+      <div style="font-weight:700;margin-bottom:var(--space-xs);" data-i18n="fare_breakdown">Fare Breakdown</div>
+      <div class="fare-row">
+        <span class="fare-label">Base Fare</span>
+        <span class="fare-value" id="fareBase">₹35</span>
+      </div>
+      <div class="fare-row">
+        <span class="fare-label" id="distFareLabel">Distance Fare (12.5 km × ₹10/km)</span>
+        <span class="fare-value" id="fareDist">₹125</span>
+      </div>
+      <div class="fare-row" id="rowDiscount" style="display:none;">
+        <span class="fare-label" style="color:var(--color-success);">Promo Discount</span>
+        <span class="fare-value" style="color:var(--color-success);" id="fareDiscount">-₹0</span>
+      </div>
+      <div class="fare-row total">
+        <span>Total Payable</span>
+        <span id="fareTotal" style="color:var(--color-primary);">₹0</span>
+      </div>
+    </div>
+
+    <button class="btn btn-primary btn-full btn-xl" onclick="startDriverSearch()">
+      Book Delivery Now 🚀
+    </button>
+  </div>
+</div>
+</div>
+
+<!-- Searching Overlay Modal -->
+<div class="overlay" id="searchModal">
+  <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:90%;max-width:380px;background:var(--color-surface);border-radius:var(--radius-2xl);padding:var(--space-2xl);text-align:center;">
+    <div class="spinner" style="margin:0 auto var(--space-lg);"></div>
+    <h3 style="margin-bottom:var(--space-xs);">Searching Nearest Driver...</h3>
+    <p style="font-size:var(--font-size-sm);color:var(--color-text-secondary);margin-bottom:var(--space-lg);" id="searchStatusText">Finding drivers offering the selected vehicle</p>
+    <div class="badge badge-info" style="font-size:12px;" id="timerBadge">00:05</div>
+  </div>
+</div>
+
+<div id="toast-container"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/mock-data.js"></script>
+<script src="js/map.js"></script>
+<script src="js/app.js"></script>
+<script>
+  App.applyDarkMode();
+  App.requireAuth();
+
+  let booking = null;
+  let discount = 0;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    booking = App.getBooking() || {};
+
+    document.getElementById('vIcon').textContent = booking.vehicleIcon || '🛵';
+    document.getElementById('vName').textContent = booking.vehicleName || 'Scooter';
+    document.getElementById('vRate').textContent = `Rate: ₹${booking.perKm || 10}/km • Base: ₹${booking.baseFare || 35}`;
+
+    const stops = booking.stops || [{ address: 'Gurugram', name: 'Receiver', phone: '9876543210', otp: '1234' }];
+    document.getElementById('routeSummary').innerHTML = `
+      📍 <strong>Pickup:</strong> ${booking.pickupAddress || 'Noida'}<br/>
+      🏁 <strong>Drop(s):</strong> ${stops.map(s => s.address).join(' ➔ ')}
+    `;
+
+    // Render receivers and OTPs
+    const rList = document.getElementById('receiversList');
+    rList.innerHTML = stops.map((s, i) => `
+      <div style="padding:4px 0;border-bottom:1px solid var(--color-border-light);">
+        Stop ${i+1}: <strong>${s.name}</strong> (${s.phone}) • OTP: <strong style="color:var(--color-primary);">${s.otp}</strong>
+      </div>
+    `).join('');
+
+    updateFareDisplay();
+
+    // Map init
+    const mapInst = GGMap.create('confirmMap', { center: [28.5355, 77.3910], zoom: 12 });
+    const pCoords = await GGMap.geocode(booking.pickupAddress || 'Noida');
+    if (pCoords) {
+      GGMap.setMarker('confirmMap', 'p', pCoords.lat, pCoords.lng, 'pickup', 'Pickup');
+    }
+  });
+
+  function updateFareDisplay() {
+    const baseFare = booking.baseFare || 35;
+    const perKm = booking.perKm || 10;
+    const dist = booking.distance || 12.5;
+    const distFare = Math.round(dist * perKm);
+    const grossFare = booking.fare || (baseFare + distFare);
+
+    document.getElementById('fareBase').textContent = `₹${baseFare}`;
+    document.getElementById('distFareLabel').textContent = `Distance Fare (${dist} km × ₹${perKm}/km)`;
+    document.getElementById('fareDist').textContent = `₹${distFare}`;
+
+    const total = Math.max(0, grossFare - discount);
+    document.getElementById('fareTotal').textContent = `₹${total}`;
+    if (discount > 0) {
+      document.getElementById('rowDiscount').style.display = 'flex';
+      document.getElementById('fareDiscount').textContent = `-₹${discount}`;
+    }
+  }
+
+  function applyCoupon() {
+    const code = document.getElementById('promoCode').value.trim();
+    if (!code) return;
+    const res = MOCK.applyPromo(code, booking.fare || 250);
+    if (res && res.discount) {
+      discount = res.discount;
+      updateFareDisplay();
+      document.getElementById('promoSuccess').style.display = 'block';
+      document.getElementById('promoSuccess').textContent = `✓ Coupon applied! ₹${discount} off.`;
+      App.showToast('Coupon code applied!', 'success');
+    } else {
+      App.showToast(res?.error || 'Invalid promo code', 'error');
+    }
+  }
+
+  function startDriverSearch() {
+    document.getElementById('searchModal').classList.add('show');
+    let sec = 5;
+    const interval = setInterval(() => {
+      sec--;
+      document.getElementById('timerBadge').textContent = `00:0${sec}`;
+      if (sec === 3) {
+        document.getElementById('searchStatusText').textContent = 'Driver found! Assigning booking...';
+      }
+      if (sec <= 0) {
+        clearInterval(interval);
+        const driver = MOCK.getRandomDriver();
+        App.saveBooking({
+          bookingId: 'BK' + Date.now().toString().slice(-8),
+          driverName: driver.name,
+          driverPhone: driver.phone,
+          driverVehicle: driver.vehicle,
+          driverRating: driver.rating,
+          driverIcon: driver.icon,
+          status: 'In Transit',
+        });
+        window.location.href = 'live-tracking.html';
+      }
+    }, 1000);
+  }
+</script>
+</body>
+</html>

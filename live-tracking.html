@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Live Tracking – GetGo Shipper</title>
+  <link rel="icon" type="image/png" href="assets/logo.png" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/tracking.css" />
+  <style>
+    #trackingMap {
+      width: 100%; height: 320px;
+    }
+  </style>
+</head>
+<body>
+<div class="app-container">
+<div class="page">
+
+  <div class="page-header" style="position:absolute;top:0;left:0;right:0;z-index:var(--z-sticky);background:rgba(255,255,255,0.85);backdrop-filter:blur(8px);border:none;">
+    <a href="home.html" class="header-back">←</a>
+    <div class="header-title" data-i18n="track_live">Live GPS Tracking</div>
+    <button class="btn btn-danger btn-sm" onclick="triggerSOS()">🆘 SOS</button>
+  </div>
+
+  <div class="page-content" style="padding:0;">
+
+    <!-- Leaflet Live Driver Animation Map -->
+    <div id="trackingMap"></div>
+
+    <!-- Live Driver Card & Status Sheet -->
+    <div style="padding:var(--space-lg);background:var(--color-surface);border-radius:var(--radius-2xl) var(--radius-2xl) 0 0;margin-top:-20px;position:relative;z-index:10;box-shadow:0 -8px 24px rgba(0,0,0,0.1);">
+
+      <!-- ETA Banner -->
+      <div style="display:flex;align-items:center;justify-content:space-between;background:var(--color-primary-light);padding:var(--space-md) var(--space-lg);border-radius:var(--radius-xl);margin-bottom:var(--space-lg);">
+        <div>
+          <div style="font-size:var(--font-size-xs);color:var(--color-primary-darker);font-weight:600;">ESTIMATED ARRIVAL</div>
+          <div style="font-size:var(--font-size-xl);font-weight:800;color:var(--color-primary-darker);" id="etaText">8 Minutes</div>
+        </div>
+        <span class="badge badge-primary">⚡ Live</span>
+      </div>
+
+      <!-- Driver Details -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--space-lg);">
+        <div style="display:flex;align-items:center;gap:var(--space-md);">
+          <div style="width:52px;height:52px;border-radius:50%;background:var(--color-surface-2);display:flex;align-items:center;justify-content:center;font-size:24px;border:2px solid var(--color-primary);" id="dIcon">
+            👨‍✈️
+          </div>
+          <div>
+            <div style="font-weight:700;font-size:var(--font-size-md);" id="dName">Suresh Patel</div>
+            <div style="font-size:var(--font-size-xs);color:var(--color-text-secondary);" id="dVehicle">KA 05 AB 1234 • Scooter</div>
+            <div style="font-size:var(--font-size-xs);color:var(--color-warning);">⭐ 4.8 Rating</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:var(--space-sm);">
+          <button class="btn btn-icon btn-icon-primary" onclick="callDriver()">📞</button>
+          <button class="btn btn-icon" onclick="chatDriver()">💬</button>
+        </div>
+      </div>
+
+      <!-- Receiver OTP Cards -->
+      <div style="background:var(--color-surface-2);border-radius:var(--radius-lg);padding:var(--space-md);margin-bottom:var(--space-lg);" id="otpSection">
+        <div style="font-weight:700;font-size:var(--font-size-sm);margin-bottom:6px;">Delivery OTP Code(s)</div>
+        <div id="otpList"></div>
+      </div>
+
+      <!-- Progress Timeline -->
+      <div style="font-weight:700;margin-bottom:var(--space-md);">Delivery Progress</div>
+      <div class="status-timeline">
+        <div class="timeline-item done">
+          <div class="timeline-dot">✓</div>
+          <div class="timeline-info">
+            <div class="timeline-title">Booking Confirmed</div>
+            <div class="timeline-desc">Driver assigned to order</div>
+          </div>
+        </div>
+        <div class="timeline-item done">
+          <div class="timeline-dot">✓</div>
+          <div class="timeline-info">
+            <div class="timeline-title">Package Picked Up</div>
+            <div class="timeline-desc">Picked from Noida</div>
+          </div>
+        </div>
+        <div class="timeline-item active">
+          <div class="timeline-dot">🚀</div>
+          <div class="timeline-info">
+            <div class="timeline-title">In Transit</div>
+            <div class="timeline-desc">Driver moving on map</div>
+          </div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-dot">🏁</div>
+          <div class="timeline-info">
+            <div class="timeline-title">Delivered</div>
+            <div class="timeline-desc">OTP verification & signature</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+</div>
+
+<div id="toast-container"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/mock-data.js"></script>
+<script src="js/map.js"></script>
+<script src="js/app.js"></script>
+<script>
+  App.applyDarkMode();
+  App.requireAuth();
+
+  let booking = null;
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    booking = App.getBooking() || MOCK.bookings[0];
+
+    document.getElementById('dName').textContent = booking.driverName || 'Suresh Patel';
+    document.getElementById('dVehicle').textContent = `${booking.driverVehicle || 'KA 05 AB 1234'} • ${booking.vehicleName || 'Scooter'}`;
+
+    const stops = booking.stops || [{ name: 'Rahul Mehta', phone: '9876543210', otp: booking.otp || '5619' }];
+    document.getElementById('otpList').innerHTML = stops.map((s, i) => `
+      <div style="display:flex;align-items:center;justify-content:space-between;font-size:var(--font-size-sm);margin-top:4px;">
+        <span>Stop ${i+1}: <strong>${s.name}</strong></span>
+        <span style="font-weight:800;font-size:var(--font-size-md);letter-spacing:2px;color:var(--color-primary);">${s.otp || '5619'}</span>
+      </div>
+    `).join('');
+
+    // Init Leaflet map
+    GGMap.create('trackingMap', { center: [28.5355, 77.3910], zoom: 12 });
+
+    const pCoords = await GGMap.geocode(booking.pickupAddress || 'Noida') || { lat: 28.5355, lng: 77.3910 };
+    const dCoords = await GGMap.geocode(stops[0].address || 'Gurugram') || { lat: 28.4949, lng: 77.0884 };
+
+    GGMap.setMarker('trackingMap', 'pickup', pCoords.lat, pCoords.lng, 'pickup', 'Pickup Location');
+    GGMap.setMarker('trackingMap', 'drop', dCoords.lat, dCoords.lng, 'drop', 'Drop Location');
+
+    const route = [pCoords, dCoords];
+    GGMap.drawRoute('trackingMap', route);
+
+    // Start live driver animation along route
+    GGMap.startDriverAnimation('trackingMap', route, booking.driverIcon || '🛵', (pct, isDone) => {
+      if (isDone) {
+        document.getElementById('etaText').textContent = 'Arrived at Destination';
+        App.showToast('Driver reached drop location!', 'success');
+      } else {
+        const remMin = Math.max(1, Math.round((1 - pct) * 10));
+        document.getElementById('etaText').textContent = `${remMin} Minutes`;
+      }
+    });
+  });
+
+  function callDriver() {
+    App.showToast(`Calling driver: ${booking.driverPhone || '+91 98112 34567'}`, 'info');
+  }
+
+  function chatDriver() {
+    App.showToast('Opening in-app chat with driver...', 'info');
+  }
+
+  function triggerSOS() {
+    if (confirm('🚨 Are you sure you want to trigger SOS emergency alert? Our safety team will contact you immediately.')) {
+      App.showToast('SOS emergency alert sent to support team!', 'error', 6000);
+    }
+  }
+</script>
+</body>
+</html>
